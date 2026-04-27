@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -42,11 +40,12 @@ def train(config: TrainingConfig) -> TrainingResult:
 
     progress.set_description("Evaluating baseline")
     baseline_model = build_baseline_classifier()
-    train_df = pd.DataFrame(train_matrix, columns=preprocessing.feature_names)
-    baseline_model.fit(train_df, train_labels)
+    train_frame = pd.DataFrame(train_matrix, columns=preprocessing.feature_names)
+    validation_frame = pd.DataFrame(validation_matrix, columns=preprocessing.feature_names)
+    baseline_model.fit(train_frame, train_labels)
     baseline_report = build_evaluation_report(
         model=baseline_model,
-        features=validation_matrix,
+        features=validation_frame,
         labels=validation_labels,
         feature_names=preprocessing.feature_names,
         model_name="logistic_regression",
@@ -59,30 +58,31 @@ def train(config: TrainingConfig) -> TrainingResult:
     progress.update(10)
 
     progress.set_description("Training main model")
-    config.extra_metadata["classes"] = preprocessing.label_encoder.classes_
-    balanced_matrix, balanced_labels = _balance_dataset(train_matrix, train_labels)
-    balanced_df = pd.DataFrame(balanced_matrix, columns=preprocessing.feature_names)
-    model_spec = build_lightgbm(config)
+    classes = list(preprocessing.label_encoder.classes_)
+    metadata = dict(config.extra_metadata)
+    metadata["classes"] = classes
+    balanced_matrix, balanced_labels = _balance_dataset(train_matrix, train_labels, config)
+    balanced_frame = pd.DataFrame(balanced_matrix, columns=preprocessing.feature_names)
+    model_spec = build_lightgbm(config, classes)
     model = model_spec.estimator
+
     try:
-        model.fit(balanced_df, balanced_labels)
+        model.fit(balanced_frame, balanced_labels)
     except Exception as exc:
         if config.use_gpu and model_spec.name == "lightgbm":
             print(f"GPU training failed, retrying on CPU: {exc}")
-            config.use_gpu = False
-            model_spec = build_lightgbm(config)
+            model_spec = build_lightgbm(config, classes, use_gpu=False)
             model = model_spec.estimator
-            model.fit(balanced_df, balanced_labels)
-            config.extra_metadata["gpu_fallback_reason"] = str(exc)
+            model.fit(balanced_frame, balanced_labels)
+            metadata["gpu_fallback_reason"] = str(exc)
         else:
             raise
     progress.update(30)
 
     progress.set_description("Finalizing report")
-    config.threshold = 0.5
     validation_report = build_evaluation_report(
         model=model,
-        features=validation_matrix,
+        features=validation_frame,
         labels=validation_labels,
         feature_names=preprocessing.feature_names,
         model_name=model_spec.name,
@@ -113,7 +113,7 @@ def train(config: TrainingConfig) -> TrainingResult:
             "report": str(report_path),
             "manifest": "manifest.json",
         },
-        metadata={"notes": config.notes, **config.extra_metadata},
+        metadata={"notes": config.notes, **metadata},
     )
     _, _, manifest_path = save_runtime_bundle(config.paths.artifact_dir, preprocessing, model, manifest)
     progress.update(10)
@@ -141,12 +141,22 @@ def _metrics_to_dict(metrics: ModelMetrics) -> dict[str, float]:
     }
 
 
-def _optimize_threshold(model: Any, features: Any, labels: Any) -> float:
-    return 0.5
-
-
-def _balance_dataset(features: np.ndarray, labels: pd.Series) -> tuple[np.ndarray, np.ndarray]:
+def _balance_dataset(
+    features: np.ndarray,
+    labels: pd.Series,
+    config: TrainingConfig,
+) -> tuple[np.ndarray, np.ndarray]:
     labels_array = np.asarray(labels)
+
+    if config.use_smote:
+        try:
+            from imblearn.over_sampling import SMOTE
+
+            sampler = SMOTE(random_state=config.random_state)
+            return sampler.fit_resample(features, labels_array)
+        except ImportError:
+            print("imbalanced-learn is not installed. Falling back to random oversampling.")
+
     unique_labels, counts = np.unique(labels_array, return_counts=True)
     max_count = int(np.max(counts))
     expanded_features = [features]
@@ -159,9 +169,9 @@ def _balance_dataset(features: np.ndarray, labels: pd.Series) -> tuple[np.ndarra
         extra_needed = target_count - int(count)
         if extra_needed <= 0:
             continue
-        indices = np.where(labels_array == label)[0]
-        extra_indices = np.random.choice(indices, size=extra_needed, replace=True)
-        expanded_features.append(features[extra_indices])
-        expanded_labels.append(labels_array[extra_indices])
+        label_indices = np.where(labels_array == label)[0]
+        sampled_indices = np.random.choice(label_indices, size=extra_needed, replace=True)
+        expanded_features.append(features[sampled_indices])
+        expanded_labels.append(labels_array[sampled_indices])
 
     return np.vstack(expanded_features), np.concatenate(expanded_labels)
