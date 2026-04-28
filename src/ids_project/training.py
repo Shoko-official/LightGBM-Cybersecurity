@@ -39,10 +39,11 @@ def train(config: TrainingConfig) -> TrainingResult:
     progress.update(40)
 
     progress.set_description("Evaluating baseline")
-    baseline_model = build_baseline_classifier()
-    train_frame = pd.DataFrame(train_matrix, columns=preprocessing.feature_names)
+    balanced_matrix, balanced_labels = _balance_dataset(train_matrix, train_labels, config)
+    train_frame = pd.DataFrame(balanced_matrix, columns=preprocessing.feature_names)
     validation_frame = pd.DataFrame(validation_matrix, columns=preprocessing.feature_names)
-    baseline_model.fit(train_frame, train_labels)
+    baseline_model = build_baseline_classifier()
+    baseline_model.fit(train_frame, balanced_labels)
     baseline_report = build_evaluation_report(
         model=baseline_model,
         features=validation_frame,
@@ -61,19 +62,17 @@ def train(config: TrainingConfig) -> TrainingResult:
     classes = list(preprocessing.label_encoder.classes_)
     metadata = dict(config.extra_metadata)
     metadata["classes"] = classes
-    balanced_matrix, balanced_labels = _balance_dataset(train_matrix, train_labels, config)
-    balanced_frame = pd.DataFrame(balanced_matrix, columns=preprocessing.feature_names)
     model_spec = build_lightgbm(config, classes)
     model = model_spec.estimator
 
     try:
-        model.fit(balanced_frame, balanced_labels)
+        model.fit(train_frame, balanced_labels)
     except Exception as exc:
         if config.use_gpu and model_spec.name == "lightgbm":
             print(f"GPU training failed, retrying on CPU: {exc}")
             model_spec = build_lightgbm(config, classes, use_gpu=False)
             model = model_spec.estimator
-            model.fit(balanced_frame, balanced_labels)
+            model.fit(train_frame, balanced_labels)
             metadata["gpu_fallback_reason"] = str(exc)
         else:
             raise
@@ -157,6 +156,7 @@ def _balance_dataset(
         except ImportError:
             print("imbalanced-learn is not installed. Falling back to random oversampling.")
 
+    rng = np.random.default_rng(config.random_state)
     unique_labels, counts = np.unique(labels_array, return_counts=True)
     max_count = int(np.max(counts))
     expanded_features = [features]
@@ -170,7 +170,7 @@ def _balance_dataset(
         if extra_needed <= 0:
             continue
         label_indices = np.where(labels_array == label)[0]
-        sampled_indices = np.random.choice(label_indices, size=extra_needed, replace=True)
+        sampled_indices = rng.choice(label_indices, size=extra_needed, replace=True)
         expanded_features.append(features[sampled_indices])
         expanded_labels.append(labels_array[sampled_indices])
 

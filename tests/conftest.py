@@ -14,7 +14,15 @@ def sample_dataset_frame() -> pd.DataFrame:
     rows = []
     services = ["http", "smtp", "ftp"]
     flags = ["SF", "S0", "REJ"]
-    for index in range(24):
+    labels = [
+        "normal",
+        "neptune",
+        "satan",
+        "guess_passwd",
+        "buffer_overflow",
+    ]
+    for index in range(60):
+        label = labels[index // 12]
         rows.append(
             {
                 "duration": index,
@@ -58,7 +66,7 @@ def sample_dataset_frame() -> pd.DataFrame:
                 "dst_host_srv_serror_rate": 0.0 if index % 2 else 0.3,
                 "dst_host_rerror_rate": 0.0 if index % 3 else 0.2,
                 "dst_host_srv_rerror_rate": 0.0 if index % 3 else 0.2,
-                "label": "normal" if index < 12 else "neptune",
+                "label": label,
                 "difficulty": index % 5,
             }
         )
