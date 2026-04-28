@@ -2,6 +2,7 @@
   "runtime": {
     "model_name": "lightgbm",
     "profile_name": "default-prod",
+    "gpu_backend": "cpu",
     "threshold": 0.5,
     "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDDTrain+.txt",
     "feature_count": 29,
@@ -46,24 +47,24 @@
   },
   "single_prediction": {
     "iterations": 100,
-    "mean_ms": 19.531055000024935,
-    "median_ms": 19.45640000030835,
-    "p95_ms": 20.191800000247895,
-    "min_ms": 18.81350000076054,
-    "max_ms": 20.99119999911636
+    "mean_ms": 25.06885999984661,
+    "median_ms": 26.602649999404093,
+    "p95_ms": 27.880100002221297,
+    "min_ms": 18.382599999313243,
+    "max_ms": 28.626600000279723
   },
   "batch_prediction": {
     "iterations": 30,
-    "mean_ms": 24.16132333346468,
-    "median_ms": 22.217400000954513,
-    "p95_ms": 31.18950000134646,
-    "min_ms": 21.346199999243254,
-    "max_ms": 31.350400000519585,
+    "mean_ms": 30.16672333275589,
+    "median_ms": 29.883699999118107,
+    "p95_ms": 33.01659999851836,
+    "min_ms": 28.964799999812385,
+    "max_ms": 35.753999996813945,
     "batch_size": 128,
-    "per_item_mean_ms": 0.1887603385426928
+    "per_item_mean_ms": 0.2356775260371554
   },
   "memory": {
-    "current_bytes": 533497,
-    "peak_bytes": 1194877
+    "current_bytes": 528355,
+    "peak_bytes": 1194616
   }
 }

@@ -36,6 +36,7 @@
     "runtime": {
       "model_name": "lightgbm",
       "profile_name": "default-prod",
+      "gpu_backend": "cpu",
       "threshold": 0.5,
       "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDDTrain+.txt",
       "feature_count": 29,
@@ -80,33 +81,84 @@
     },
     "single_prediction": {
       "iterations": 100,
-      "mean_ms": 19.531055000024935,
-      "median_ms": 19.45640000030835,
-      "p95_ms": 20.191800000247895,
-      "min_ms": 18.81350000076054,
-      "max_ms": 20.99119999911636
+      "mean_ms": 25.06885999984661,
+      "median_ms": 26.602649999404093,
+      "p95_ms": 27.880100002221297,
+      "min_ms": 18.382599999313243,
+      "max_ms": 28.626600000279723
     },
     "batch_prediction": {
       "iterations": 30,
-      "mean_ms": 24.16132333346468,
-      "median_ms": 22.217400000954513,
-      "p95_ms": 31.18950000134646,
-      "min_ms": 21.346199999243254,
-      "max_ms": 31.350400000519585,
+      "mean_ms": 30.16672333275589,
+      "median_ms": 29.883699999118107,
+      "p95_ms": 33.01659999851836,
+      "min_ms": 28.964799999812385,
+      "max_ms": 35.753999996813945,
       "batch_size": 128,
-      "per_item_mean_ms": 0.1887603385426928
+      "per_item_mean_ms": 0.2356775260371554
     },
     "memory": {
-      "current_bytes": 533497,
-      "peak_bytes": 1194877
+      "current_bytes": 528355,
+      "peak_bytes": 1194616
     },
     "exit_code": 0
   },
   "gpu_smoke": {
-    "status": "failed",
+    "status": "success",
+    "model_name": "lightgbm",
     "profile_name": "default-prod",
-    "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDD5k.txt",
-    "error": "Check failed: (best_split_info.left_count) > (0) at D:\\a\\1\\s\\lightgbm-python\\src\\treelearner\\serial_tree_learner.cpp, line 852 .\n",
-    "exit_code": 3221225477
+    "accuracy": 0.995004995004995,
+    "report_path": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/reports/gpu-smoke/validation_report.json",
+    "artifact_dir": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/artifacts/gpu-smoke",
+    "exit_code": 0
+  },
+  "gpu_benchmark": {
+    "dataset": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/data/raw/KDD5k.txt",
+    "cpu": {
+      "training_seconds": 6.623519971,
+      "accuracy": 0.993006993006993,
+      "single_prediction_ms": {
+        "mean_ms": 5.761005766667419,
+        "median_ms": 5.499070500000869,
+        "p95_ms": 7.225124999997945,
+        "min_ms": 5.080182999996907,
+        "max_ms": 7.672783000003847
+      },
+      "batch_prediction_ms": {
+        "mean_ms": 6.508817999999887,
+        "median_ms": 6.424394999996252,
+        "p95_ms": 7.220199000002481,
+        "min_ms": 6.029198000000235,
+        "max_ms": 7.220199000002481,
+        "batch_size": 128,
+        "per_item_mean_ms": 0.05085014062499912
+      }
+    },
+    "gpu": {
+      "training_seconds": 4.293619424999999,
+      "accuracy": 0.994005994005994,
+      "single_prediction_ms": {
+        "mean_ms": 6.3119634666662705,
+        "median_ms": 6.266462999999334,
+        "p95_ms": 8.104658999997127,
+        "min_ms": 5.217389999998545,
+        "max_ms": 8.579158999999947
+      },
+      "batch_prediction_ms": {
+        "mean_ms": 7.169095333333075,
+        "median_ms": 7.078804999999022,
+        "p95_ms": 9.650424000000157,
+        "min_ms": 5.998118999997359,
+        "max_ms": 9.650424000000157,
+        "batch_size": 128,
+        "per_item_mean_ms": 0.05600855729166465
+      }
+    },
+    "speedup": {
+      "training_x": 1.5426425389343867,
+      "single_prediction_x": 0.9127121532137376,
+      "batch_prediction_x": 0.907899490433166
+    },
+    "exit_code": 0
   }
 }

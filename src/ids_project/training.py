@@ -5,7 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from ids_project.artifacts import save_runtime_bundle
-from ids_project.config import TrainingConfig
+from ids_project.config import TrainingConfig, resolve_gpu_backend
 from ids_project.contracts import ArtifactManifest, ModelMetrics, TrainingResult
 from ids_project.data.dataset import build_split, load_dataset
 from ids_project.evaluation import build_evaluation_report, save_report
@@ -63,6 +63,8 @@ def train(config: TrainingConfig) -> TrainingResult:
     metadata = dict(config.extra_metadata)
     metadata["classes"] = classes
     metadata["profile_name"] = config.profile_name
+    if config.use_gpu:
+        metadata["gpu_backend"] = resolve_gpu_backend(config.gpu_backend)
     model_spec = build_lightgbm(config, classes)
     model = model_spec.estimator
 
@@ -91,6 +93,7 @@ def train(config: TrainingConfig) -> TrainingResult:
                 config=config,
             )
             metadata["gpu_fallback_reason"] = str(exc)
+            metadata["gpu_backend"] = "cpu-fallback"
         else:
             raise
     progress.update(30)

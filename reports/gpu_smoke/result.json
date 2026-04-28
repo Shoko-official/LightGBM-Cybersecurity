@@ -1,6 +1,8 @@
 {
-  "status": "failed",
+  "status": "success",
+  "model_name": "lightgbm",
   "profile_name": "default-prod",
-  "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDD5k.txt",
-  "error": "Check failed: (best_split_info.left_count) > (0) at D:\\a\\1\\s\\lightgbm-python\\src\\treelearner\\serial_tree_learner.cpp, line 852 .\n"
+  "accuracy": 0.995004995004995,
+  "report_path": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/reports/gpu-smoke/validation_report.json",
+  "artifact_dir": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/artifacts/gpu-smoke"
 }

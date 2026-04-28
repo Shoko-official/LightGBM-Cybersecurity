@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import platform
 from typing import Any
 from dataclasses import dataclass, field
 from pathlib import Path
 
 PRODUCTION_PROFILE_NAME = "default-prod"
 U2R_SPECIALIST_PROFILE_NAME = "u2r-specialist"
+VALID_GPU_BACKENDS = {"auto", "gpu", "cuda"}
 
 DEFAULT_CLASS_WEIGHTS = {
     "normal": 1.0,
@@ -61,6 +63,15 @@ def build_profile_config(profile_name: str) -> dict[str, Any]:
     return {key: dict(value) if isinstance(value, dict) else value for key, value in profile.items()}
 
 
+def resolve_gpu_backend(gpu_backend: str) -> str:
+    if gpu_backend not in VALID_GPU_BACKENDS:
+        available_backends = ", ".join(sorted(VALID_GPU_BACKENDS))
+        raise ValueError(f"Unknown GPU backend {gpu_backend!r}. Available backends: {available_backends}.")
+    if gpu_backend != "auto":
+        return gpu_backend
+    return "cuda" if platform.system().lower() == "linux" else "gpu"
+
+
 @dataclass(slots=True)
 class PathsConfig:
     dataset_path: Path
@@ -104,6 +115,7 @@ class TrainingConfig:
     report_top_features: int = 15
     report_precision_digits: int = 4
     use_gpu: bool = False
+    gpu_backend: str = "auto"
     require_gpu: bool = False
     allow_gpu_fallback: bool = True
     gpu_platform_id: int = 0

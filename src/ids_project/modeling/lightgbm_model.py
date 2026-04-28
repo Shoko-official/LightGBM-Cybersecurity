@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ids_project.config import TrainingConfig
+from ids_project.config import TrainingConfig, resolve_gpu_backend
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,9 +59,11 @@ def build_lightgbm(
         "verbosity": -1,
     }
     if use_gpu:
-        estimator_kwargs["device"] = "gpu"
-        estimator_kwargs["gpu_platform_id"] = config.gpu_platform_id
-        estimator_kwargs["gpu_device_id"] = config.gpu_device_id
+        backend = resolve_gpu_backend(config.gpu_backend)
+        estimator_kwargs["device_type"] = backend
+        if backend == "gpu":
+            estimator_kwargs["gpu_platform_id"] = config.gpu_platform_id
+            estimator_kwargs["gpu_device_id"] = config.gpu_device_id
 
     return ModelSpec(
         name="lightgbm",
