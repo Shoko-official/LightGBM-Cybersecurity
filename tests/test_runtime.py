@@ -14,7 +14,7 @@ def test_runtime_predict_one(trained_bundle, sample_dataset_frame):
     payload = sample_dataset_frame.drop(columns=["label", "difficulty"]).iloc[0].to_dict()
     result = predict_one(trained_bundle, payload)
     assert result.label in {"normal", "attack"}
-    assert isinstance(result.category, str)
+    assert result.category in {"normal", "dos", "probe", "r2l", "u2r"}
     assert 0.0 <= result.score <= 1.0
 
 
