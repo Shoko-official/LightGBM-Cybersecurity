@@ -77,7 +77,7 @@ def train(config: TrainingConfig) -> TrainingResult:
             config=config,
         )
     except Exception as exc:
-        if config.use_gpu and model_spec.name == "lightgbm":
+        if config.use_gpu and model_spec.name == "lightgbm" and config.allow_gpu_fallback:
             print(f"GPU training failed, retrying on CPU: {exc}")
             model_spec = build_lightgbm(config, classes, use_gpu=False)
             model = model_spec.estimator
@@ -204,6 +204,8 @@ def _balance_dataset(
             return sampler.fit_resample(features, labels_array)
         except ImportError:
             print("imbalanced-learn is not installed. Falling back to random oversampling.")
+        except ValueError as exc:
+            print(f"SMOTE could not be applied, falling back to random oversampling: {exc}")
 
     rng = np.random.default_rng(config.random_state)
     unique_labels, counts = np.unique(labels_array, return_counts=True)

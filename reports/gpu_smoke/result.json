@@ -1,0 +1,6 @@
+{
+  "status": "failed",
+  "profile_name": "default-prod",
+  "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDD5k.txt",
+  "error": "Check failed: (best_split_info.left_count) > (0) at D:\\a\\1\\s\\lightgbm-python\\src\\treelearner\\serial_tree_learner.cpp, line 852 .\n"
+}
