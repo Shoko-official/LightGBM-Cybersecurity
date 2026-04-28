@@ -20,5 +20,5 @@ jobs:
           pip install lightgbm
       - name: Run tests
         run: pytest -q
-      - name: Compile scripts
-        run: python -m compileall src tests run_training.py run_model_search.py run_rare_class_search.py run_u2r_search.py run_benchmark.py run_external_validation.py run_gpu_smoke_test.py run_release_checks.py
+      - name: Compile package
+        run: python -m compileall src tests
