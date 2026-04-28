@@ -13,6 +13,7 @@ def add_training_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--profile", default="default-prod")
     parser.add_argument("--estimators", type=int)
     parser.add_argument("--gpu", action="store_true")
+    parser.add_argument("--gpu-backend", choices=["auto", "gpu", "cuda"], default="auto")
     parser.add_argument("--require-gpu", action="store_true")
     parser.add_argument("--no-gpu-fallback", action="store_true")
     parser.add_argument("--gpu-platform-id", type=int, default=0)
@@ -107,6 +108,7 @@ def build_training_config(args: argparse.Namespace):
             report_dir=Path(args.report_dir),
             profile_name=args.profile,
             use_gpu=args.gpu,
+            gpu_backend=args.gpu_backend,
             require_gpu=args.require_gpu,
             allow_gpu_fallback=not args.no_gpu_fallback,
             gpu_platform_id=args.gpu_platform_id,

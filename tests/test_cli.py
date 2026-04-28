@@ -31,6 +31,7 @@ def test_cli_parser_accepts_train_command():
     assert args.dataset.endswith("nsl_kdd.csv")
     assert args.estimators == 200
     assert args.gpu is True
+    assert args.gpu_backend == "auto"
     assert args.no_smote is True
     assert args.no_progress is True
     assert args.class_weight == ["u2r=20", "r2l=10"]
@@ -48,6 +49,8 @@ def test_build_training_config_maps_train_arguments():
             "1",
             "--gpu-device-id",
             "2",
+            "--gpu-backend",
+            "cuda",
             "--class-weight",
             "probe=3.5",
         ]
@@ -56,6 +59,7 @@ def test_build_training_config_maps_train_arguments():
     config = build_training_config(args)
 
     assert config.use_gpu is False
+    assert config.gpu_backend == "cuda"
     assert config.gpu_platform_id == 1
     assert config.gpu_device_id == 2
     assert config.custom_class_weights == {"probe": 3.5}
