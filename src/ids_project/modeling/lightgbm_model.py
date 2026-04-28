@@ -25,7 +25,7 @@ def build_lightgbm(
         from sklearn.linear_model import LogisticRegression
     except ModuleNotFoundError:
         return ModelSpec(
-            name="logistic_regression",
+            name="lightgbm_fallback_logistic_regression",
             estimator=LogisticRegression(
                 class_weight="balanced",
                 solver="lbfgs",

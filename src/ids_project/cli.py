@@ -6,14 +6,31 @@ from dataclasses import asdict
 from pathlib import Path
 
 
+def add_training_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--dataset", required=True)
+    parser.add_argument("--artifact-dir", default="artifacts/latest")
+    parser.add_argument("--report-dir", default="reports/latest")
+    parser.add_argument("--estimators", type=int, default=300)
+    parser.add_argument("--gpu", action="store_true")
+    parser.add_argument("--gpu-platform-id", type=int, default=0)
+    parser.add_argument("--gpu-device-id", type=int, default=0)
+    parser.add_argument("--no-smote", action="store_true")
+    parser.add_argument("--no-progress", action="store_true")
+    parser.add_argument(
+        "--class-weight",
+        action="append",
+        default=[],
+        metavar="LABEL=WEIGHT",
+        help="Repeat to override class weights for the main model.",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ids-cli")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     train_parser = subparsers.add_parser("train")
-    train_parser.add_argument("--dataset", required=True)
-    train_parser.add_argument("--artifact-dir", default="artifacts/latest")
-    train_parser.add_argument("--report-dir", default="reports/latest")
+    add_training_arguments(train_parser)
 
     eval_parser = subparsers.add_parser("evaluate")
     eval_parser.add_argument("--artifact-dir", required=True)
@@ -35,16 +52,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command == "train":
-        from ids_project.config import TrainingConfig
         from ids_project.training import train
 
-        result = train(
-            TrainingConfig(
-                dataset_path=Path(args.dataset),
-                artifact_dir=Path(args.artifact_dir),
-                report_dir=Path(args.report_dir),
-            )
-        )
+        result = train(build_training_config(args))
         print(json.dumps(_training_result_to_dict(result), indent=2))
         return
 
@@ -73,6 +83,37 @@ def main() -> None:
 
     result = predict_batch(bundle, payload)
     print(json.dumps(asdict(result), indent=2))
+
+
+def build_training_config(args: argparse.Namespace):
+    from ids_project.config import TrainingConfig
+
+    class_weights = _parse_class_weights(args.class_weight)
+    return TrainingConfig(
+        dataset_path=Path(args.dataset),
+        artifact_dir=Path(args.artifact_dir),
+        report_dir=Path(args.report_dir),
+        n_estimators=args.estimators,
+        use_gpu=args.gpu,
+        gpu_platform_id=args.gpu_platform_id,
+        gpu_device_id=args.gpu_device_id,
+        progress_bar=not args.no_progress,
+        use_smote=not args.no_smote,
+        custom_class_weights=class_weights or None,
+    )
+
+
+def _parse_class_weights(entries: list[str]) -> dict[str, float]:
+    class_weights: dict[str, float] = {}
+    for entry in entries:
+        label, separator, raw_weight = entry.partition("=")
+        if not separator or not label.strip():
+            raise ValueError(f"Invalid class weight format: {entry!r}. Expected LABEL=WEIGHT.")
+        try:
+            class_weights[label.strip()] = float(raw_weight)
+        except ValueError as exc:
+            raise ValueError(f"Invalid class weight value for {label.strip()!r}: {raw_weight!r}.") from exc
+    return class_weights
 
 
 def _training_result_to_dict(result) -> dict[str, object]:
