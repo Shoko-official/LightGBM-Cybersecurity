@@ -13,6 +13,8 @@ def add_training_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--profile", default="default-prod")
     parser.add_argument("--estimators", type=int)
     parser.add_argument("--gpu", action="store_true")
+    parser.add_argument("--require-gpu", action="store_true")
+    parser.add_argument("--no-gpu-fallback", action="store_true")
     parser.add_argument("--gpu-platform-id", type=int, default=0)
     parser.add_argument("--gpu-device-id", type=int, default=0)
     parser.add_argument("--no-smote", action="store_true")
@@ -46,6 +48,9 @@ def build_parser() -> argparse.ArgumentParser:
     predict_batch_parser.add_argument("--artifact-dir", required=True)
     predict_batch_parser.add_argument("--input", required=True)
 
+    inspect_parser = subparsers.add_parser("inspect-runtime")
+    inspect_parser.add_argument("--artifact-dir", required=True)
+
     return parser
 
 
@@ -74,10 +79,13 @@ def main() -> None:
         print(json.dumps(report.to_dict(), indent=2))
         return
 
-    payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
-    from ids_project.runtime import load_runtime, predict_batch, predict_one
+    from ids_project.runtime import describe_runtime, load_runtime, predict_batch, predict_one
 
     bundle = load_runtime(args.artifact_dir)
+    if args.command == "inspect-runtime":
+        print(json.dumps(describe_runtime(bundle), indent=2))
+        return
+    payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
     if args.command == "predict-one":
         result = predict_one(bundle, payload)
         print(json.dumps(asdict(result), indent=2))
@@ -99,6 +107,8 @@ def build_training_config(args: argparse.Namespace):
             report_dir=Path(args.report_dir),
             profile_name=args.profile,
             use_gpu=args.gpu,
+            require_gpu=args.require_gpu,
+            allow_gpu_fallback=not args.no_gpu_fallback,
             gpu_platform_id=args.gpu_platform_id,
             gpu_device_id=args.gpu_device_id,
             progress_bar=not args.no_progress,

@@ -47,6 +47,19 @@ def predict_batch(bundle: RuntimeBundle, payloads: list[dict[str, object]]) -> B
     return BatchPredictionResult(predictions=predictions)
 
 
+def describe_runtime(bundle: RuntimeBundle) -> dict[str, object]:
+    profile_name = bundle.manifest.metadata.get("profile_name", "unknown")
+    return {
+        "model_name": bundle.manifest.model_name,
+        "profile_name": profile_name,
+        "threshold": bundle.manifest.threshold,
+        "dataset_path": bundle.manifest.dataset_path,
+        "feature_count": len(bundle.manifest.feature_columns),
+        "feature_columns": bundle.manifest.feature_columns,
+        "label_mapping": bundle.manifest.label_mapping,
+    }
+
+
 def _resolve_category(bundle: RuntimeBundle, predicted_index: int) -> str:
     reverse_mapping = {value: key for key, value in bundle.manifest.label_mapping.items()}
     return reverse_mapping.get(predicted_index, "unknown")

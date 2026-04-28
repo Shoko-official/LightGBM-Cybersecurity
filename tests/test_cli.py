@@ -127,3 +127,17 @@ def test_cli_parser_accepts_predict_one_command():
 
     assert args.command == "predict-one"
     assert args.input == "input.json"
+
+
+def test_cli_parser_accepts_runtime_inspection():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "inspect-runtime",
+            "--artifact-dir",
+            "artifacts/latest",
+        ]
+    )
+
+    assert args.command == "inspect-runtime"
+    assert args.artifact_dir == "artifacts/latest"
