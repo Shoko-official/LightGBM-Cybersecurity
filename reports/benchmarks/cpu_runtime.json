@@ -1,0 +1,69 @@
+{
+  "runtime": {
+    "model_name": "lightgbm",
+    "profile_name": "default-prod",
+    "threshold": 0.5,
+    "dataset_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\data\\raw\\KDDTrain+.txt",
+    "feature_count": 29,
+    "feature_columns": [
+      "skewed__duration",
+      "skewed__src_bytes",
+      "skewed__dst_bytes",
+      "numeric__wrong_fragment",
+      "numeric__hot",
+      "numeric__logged_in",
+      "numeric__num_compromised",
+      "numeric__num_root",
+      "numeric__is_guest_login",
+      "numeric__count",
+      "numeric__srv_count",
+      "numeric__serror_rate",
+      "numeric__rerror_rate",
+      "numeric__same_srv_rate",
+      "numeric__diff_srv_rate",
+      "numeric__srv_diff_host_rate",
+      "numeric__dst_host_count",
+      "numeric__dst_host_srv_count",
+      "numeric__dst_host_same_srv_rate",
+      "numeric__dst_host_diff_srv_rate",
+      "numeric__dst_host_same_src_port_rate",
+      "numeric__dst_host_srv_diff_host_rate",
+      "numeric__dst_host_serror_rate",
+      "numeric__dst_host_rerror_rate",
+      "numeric__dst_host_srv_rerror_rate",
+      "categorical__protocol_type",
+      "categorical__service",
+      "categorical__flag",
+      "unsupervised_anomaly_score"
+    ],
+    "label_mapping": {
+      "normal": 0,
+      "dos": 1,
+      "probe": 2,
+      "r2l": 3,
+      "u2r": 4
+    }
+  },
+  "single_prediction": {
+    "iterations": 100,
+    "mean_ms": 31.717291999993904,
+    "median_ms": 19.49715000046126,
+    "p95_ms": 20.515599999271217,
+    "min_ms": 18.774100000882754,
+    "max_ms": 1235.9245000006922
+  },
+  "batch_prediction": {
+    "iterations": 30,
+    "mean_ms": 23.964459999903436,
+    "median_ms": 22.23504999983561,
+    "p95_ms": 30.68110000094748,
+    "min_ms": 21.532599999773083,
+    "max_ms": 30.68650000022899,
+    "batch_size": 128,
+    "per_item_mean_ms": 0.1872223437492456
+  },
+  "memory": {
+    "current_bytes": 620370,
+    "peak_bytes": 1194663
+  }
+}

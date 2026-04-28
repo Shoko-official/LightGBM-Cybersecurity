@@ -47,7 +47,15 @@ def build_evaluation_report(
         roc_auc = float(roc_auc_score(label_values, positive_scores))
         average_precision = float(average_precision_score(label_values, positive_scores))
     else:
-        roc_auc = float(roc_auc_score(label_values, probabilities, multi_class="ovr", average="macro"))
+        roc_auc = float(
+            roc_auc_score(
+                label_values,
+                probabilities,
+                multi_class="ovr",
+                average="macro",
+                labels=list(range(probabilities.shape[1])),
+            )
+        )
         average_precision = 0.0
 
     metrics = ModelMetrics(

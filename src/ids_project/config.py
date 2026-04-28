@@ -104,6 +104,8 @@ class TrainingConfig:
     report_top_features: int = 15
     report_precision_digits: int = 4
     use_gpu: bool = False
+    require_gpu: bool = False
+    allow_gpu_fallback: bool = True
     gpu_platform_id: int = 0
     gpu_device_id: int = 0
     progress_bar: bool = True
