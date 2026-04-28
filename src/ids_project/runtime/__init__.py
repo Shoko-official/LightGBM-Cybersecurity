@@ -14,7 +14,8 @@ def load_runtime(path: str) -> RuntimeBundle:
 def predict_one(bundle: RuntimeBundle, payload: dict[str, object]) -> PredictionResult:
     frame = pd.DataFrame([payload])
     transformed = transform_features(frame, bundle.preprocessor)
-    probabilities = bundle.model.predict_proba(transformed)[0]
+    transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
+    probabilities = bundle.model.predict_proba(transformed_frame)[0]
     predicted_index = int(probabilities.argmax())
     category = _resolve_category(bundle, predicted_index)
     return PredictionResult(
@@ -30,8 +31,9 @@ def predict_batch(bundle: RuntimeBundle, payloads: list[dict[str, object]]) -> B
         raise ValueError("Prediction payload list cannot be empty.")
     frame = pd.DataFrame(payloads)
     transformed = transform_features(frame, bundle.preprocessor)
+    transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
     predictions: list[PredictionResult] = []
-    for row in bundle.model.predict_proba(transformed):
+    for row in bundle.model.predict_proba(transformed_frame):
         predicted_index = int(row.argmax())
         category = _resolve_category(bundle, predicted_index)
         predictions.append(
