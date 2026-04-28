@@ -1,0 +1,198 @@
+{
+  "model_name": "lightgbm",
+  "threshold": 0.5,
+  "metrics": {
+    "accuracy": 0.7625975869410929,
+    "precision": 0.8131395696357357,
+    "recall": 0.527796237818395,
+    "f1_score": 0.5550780293763259,
+    "roc_auc": 0.9254765700575357,
+    "average_precision": 0.0
+  },
+  "confusion_matrix": [
+    [
+      9446,
+      57,
+      202,
+      1,
+      5
+    ],
+    [
+      1574,
+      5704,
+      180,
+      0,
+      0
+    ],
+    [
+      635,
+      161,
+      1625,
+      0,
+      0
+    ],
+    [
+      2317,
+      0,
+      33,
+      400,
+      4
+    ],
+    [
+      170,
+      0,
+      9,
+      4,
+      17
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.6679,
+      "recall": 0.9727,
+      "f1-score": 0.792,
+      "support": 9711.0
+    },
+    "1": {
+      "precision": 0.9632,
+      "recall": 0.7648,
+      "f1-score": 0.8526,
+      "support": 7458.0
+    },
+    "2": {
+      "precision": 0.7931,
+      "recall": 0.6712,
+      "f1-score": 0.7271,
+      "support": 2421.0
+    },
+    "3": {
+      "precision": 0.9877,
+      "recall": 0.1452,
+      "f1-score": 0.2532,
+      "support": 2754.0
+    },
+    "4": {
+      "precision": 0.6538,
+      "recall": 0.085,
+      "f1-score": 0.1504,
+      "support": 200.0
+    },
+    "accuracy": {
+      "value": 0.7626
+    },
+    "macro avg": {
+      "precision": 0.8131,
+      "recall": 0.5278,
+      "f1-score": 0.5551,
+      "support": 22544.0
+    },
+    "weighted avg": {
+      "precision": 0.818,
+      "recall": 0.7626,
+      "f1-score": 0.7336,
+      "support": 22544.0
+    }
+  },
+  "top_features": [
+    {
+      "feature": "skewed__src_bytes",
+      "importance": 5127.0
+    },
+    {
+      "feature": "categorical__service",
+      "importance": 3756.0
+    },
+    {
+      "feature": "unsupervised_anomaly_score",
+      "importance": 3479.0
+    },
+    {
+      "feature": "skewed__dst_bytes",
+      "importance": 3105.0
+    },
+    {
+      "feature": "numeric__dst_host_srv_count",
+      "importance": 3046.0
+    },
+    {
+      "feature": "numeric__dst_host_count",
+      "importance": 2483.0
+    },
+    {
+      "feature": "numeric__dst_host_diff_srv_rate",
+      "importance": 2429.0
+    },
+    {
+      "feature": "skewed__duration",
+      "importance": 2279.0
+    },
+    {
+      "feature": "numeric__dst_host_same_src_port_rate",
+      "importance": 2197.0
+    },
+    {
+      "feature": "numeric__dst_host_same_srv_rate",
+      "importance": 2184.0
+    },
+    {
+      "feature": "numeric__dst_host_serror_rate",
+      "importance": 1831.0
+    },
+    {
+      "feature": "numeric__dst_host_rerror_rate",
+      "importance": 1739.0
+    },
+    {
+      "feature": "categorical__protocol_type",
+      "importance": 1665.0
+    },
+    {
+      "feature": "numeric__dst_host_srv_diff_host_rate",
+      "importance": 1615.0
+    },
+    {
+      "feature": "numeric__hot",
+      "importance": 1563.0
+    }
+  ],
+  "split_name": "external",
+  "attack_category_recall": {
+    "neptune": 0.9920549710113807,
+    "saint": 0.9905956112852664,
+    "mscan": 0.20381526104417672,
+    "guess_passwd": 0.0,
+    "smurf": 1.0,
+    "apache2": 0.0203527815468114,
+    "satan": 1.0,
+    "buffer_overflow": 0.3,
+    "back": 0.9749303621169917,
+    "warezmaster": 0.4205508474576271,
+    "snmpgetattack": 0.0,
+    "processtable": 0.0,
+    "pod": 0.926829268292683,
+    "httptunnel": 0.0,
+    "nmap": 1.0,
+    "ps": 0.2,
+    "snmpguess": 0.0,
+    "ipsweep": 1.0,
+    "mailbomb": 0.0,
+    "portsweep": 1.0,
+    "multihop": 0.0,
+    "named": 0.058823529411764705,
+    "sendmail": 0.0,
+    "loadmodule": 0.0,
+    "xterm": 0.5384615384615384,
+    "worm": 0.0,
+    "teardrop": 1.0,
+    "rootkit": 0.07692307692307693,
+    "xlock": 0.0,
+    "perl": 0.0,
+    "land": 0.5714285714285714,
+    "xsnoop": 0.0,
+    "sqlattack": 0.0,
+    "ftp_write": 0.3333333333333333,
+    "imap": 0.0,
+    "udpstorm": 0.0,
+    "phf": 0.5
+  }
+}
