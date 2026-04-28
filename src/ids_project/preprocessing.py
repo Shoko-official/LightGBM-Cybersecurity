@@ -57,7 +57,8 @@ class CorrelationFilter(BaseEstimator, TransformerMixin):
         self.n_features_in_ = matrix.shape[1]
         if matrix.shape[1] <= 1:
             return self
-        corr_matrix = np.abs(np.nan_to_num(np.corrcoef(matrix, rowvar=False), nan=0.0))
+        with np.errstate(invalid="ignore", divide="ignore"):
+            corr_matrix = np.abs(np.nan_to_num(np.corrcoef(matrix, rowvar=False), nan=0.0))
         self.to_drop_ = []
         for left in range(corr_matrix.shape[1]):
             for right in range(left + 1, corr_matrix.shape[1]):
