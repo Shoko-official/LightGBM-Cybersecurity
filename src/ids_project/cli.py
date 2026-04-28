@@ -89,7 +89,7 @@ def build_training_config(args: argparse.Namespace):
     from ids_project.config import TrainingConfig
 
     class_weights = _parse_class_weights(args.class_weight)
-    return TrainingConfig(
+    config_kwargs = dict(
         dataset_path=Path(args.dataset),
         artifact_dir=Path(args.artifact_dir),
         report_dir=Path(args.report_dir),
@@ -99,8 +99,10 @@ def build_training_config(args: argparse.Namespace):
         gpu_device_id=args.gpu_device_id,
         progress_bar=not args.no_progress,
         use_smote=not args.no_smote,
-        custom_class_weights=class_weights or None,
     )
+    if class_weights:
+        config_kwargs["custom_class_weights"] = class_weights
+    return TrainingConfig(**config_kwargs)
 
 
 def _parse_class_weights(entries: list[str]) -> dict[str, float]:
