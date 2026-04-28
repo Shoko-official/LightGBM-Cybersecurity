@@ -1,0 +1,47 @@
+{
+  "environment": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "lightgbm_version": "4.6.0",
+    "cuda_home": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.2",
+    "cuda_path": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.2"
+  },
+  "nvidia_smi": {
+    "exit_code": 0,
+    "stdout": "Tue Apr 28 16:09:51 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 595.97                 Driver Version: 595.97         CUDA Version: 13.2     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 5080      WDDM  |   00000000:02:00.0 Off |                  N/A |\n| 37%   64C    P1            144W /  360W |    9502MiB /  16303MiB |     49%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            5312    C+G   ... Last of Us Part I\\tlou-i.exe      N/A      |\n|    0   N/A  N/A           22208      C   ...al\\Programs\\Ollama\\ollama.exe      N/A      |\n|    0   N/A  N/A           23448    C+G   ...ms\\Microsoft VS Code\\Code.exe      N/A      |\n+-----------------------------------------------------------------------------------------+",
+    "stderr": "",
+    "status": "success"
+  },
+  "toy_binary_gpu": {
+    "exit_code": 0,
+    "stdout": "ok",
+    "stderr": "",
+    "status": "success"
+  },
+  "toy_multiclass_gpu": {
+    "exit_code": 3221225477,
+    "stdout": "",
+    "stderr": "[LightGBM] [Fatal] Check failed: (best_split_info.left_count) > (0) at D:\\a\\1\\s\\lightgbm-python\\src\\treelearner\\serial_tree_learner.cpp, line 852 .\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"C:\\Users\\shoko\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\lightgbm\\sklearn.py\", line 1560, in fit\n    super().fit(\n  File \"C:\\Users\\shoko\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\lightgbm\\sklearn.py\", line 1049, in fit\n    self._Booster = train(\n                    ^^^^^^\n  File \"C:\\Users\\shoko\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\lightgbm\\engine.py\", line 322, in train\n    booster.update(fobj=fobj)\n  File \"C:\\Users\\shoko\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\lightgbm\\basic.py\", line 4154, in update\n    _safe_call(\n  File \"C:\\Users\\shoko\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\lightgbm\\basic.py\", line 313, in _safe_call\n    raise LightGBMError(_LIB.LGBM_GetLastError().decode(\"utf-8\"))\nlightgbm.basic.LightGBMError: Check failed: (best_split_info.left_count) > (0) at D:\\a\\1\\s\\lightgbm-python\\src\\treelearner\\serial_tree_learner.cpp, line 852 .",
+    "status": "failed"
+  },
+  "kdd5k_label_distribution": {
+    "normal": 2648,
+    "neptune": 1658,
+    "ipsweep": 147,
+    "portsweep": 129,
+    "satan": 120,
+    "smurf": 101,
+    "nmap": 65,
+    "teardrop": 45,
+    "warezclient": 39,
+    "back": 35,
+    "pod": 8,
+    "guess_passwd": 2,
+    "ftp_write": 1,
+    "multihop": 1,
+    "rootkit": 1
+  },
+  "conclusion": {
+    "verdict": "LightGBM GPU is available on this machine, but the multiclass GPU path is unstable.",
+    "likely_cause": "environment_or_lightgbm_multiclass_gpu_path"
+  }
+}
