@@ -6,18 +6,18 @@
 
 ## Single prediction
 
-- Mean latency: `19.5311 ms`
-- Median latency: `19.4564 ms`
-- P95 latency: `20.1918 ms`
+- Mean latency: `25.0689 ms`
+- Median latency: `26.6026 ms`
+- P95 latency: `27.8801 ms`
 
 ## Batch prediction
 
 - Batch size: `128`
-- Mean latency: `24.1613 ms`
-- Per-item mean latency: `0.188760 ms`
-- P95 latency: `31.1895 ms`
+- Mean latency: `30.1667 ms`
+- Per-item mean latency: `0.235678 ms`
+- P95 latency: `33.0166 ms`
 
 ## Memory
 
-- Current traced memory: `533497` bytes
-- Peak traced memory: `1194877` bytes
+- Current traced memory: `528355` bytes
+- Peak traced memory: `1194616` bytes

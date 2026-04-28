@@ -10,4 +10,5 @@ def test_describe_runtime_exposes_profile_metadata(trained_artifact_dir):
     summary = describe_runtime(bundle)
 
     assert summary["profile_name"] == PRODUCTION_PROFILE_NAME
+    assert summary["gpu_backend"] == "cpu"
     assert summary["feature_count"] == len(summary["feature_columns"])

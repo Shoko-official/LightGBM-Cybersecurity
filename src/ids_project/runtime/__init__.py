@@ -49,9 +49,11 @@ def predict_batch(bundle: RuntimeBundle, payloads: list[dict[str, object]]) -> B
 
 def describe_runtime(bundle: RuntimeBundle) -> dict[str, object]:
     profile_name = bundle.manifest.metadata.get("profile_name", "unknown")
+    gpu_backend = bundle.manifest.metadata.get("gpu_backend", "cpu")
     return {
         "model_name": bundle.manifest.model_name,
         "profile_name": profile_name,
+        "gpu_backend": gpu_backend,
         "threshold": bundle.manifest.threshold,
         "dataset_path": bundle.manifest.dataset_path,
         "feature_count": len(bundle.manifest.feature_columns),

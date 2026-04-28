@@ -1,7 +1,7 @@
 # Release Summary
 
 - Release ready: `True`
-- GPU smoke status: `failed`
+- GPU smoke status: `success`
 
 ## Default production profile
 
@@ -19,6 +19,10 @@
 
 ## CPU benchmark
 
-- Single mean latency: `19.5311 ms`
-- Batch mean latency: `24.1613 ms`
-- Batch per-item mean latency: `0.188760 ms`
+- Single mean latency: `25.0689 ms`
+- Batch mean latency: `30.1667 ms`
+- Batch per-item mean latency: `0.235678 ms`
+
+## GPU benchmark
+
+- GPU benchmark status: `unknown`

@@ -1,0 +1,48 @@
+{
+  "dataset": "/mnt/c/Users/shoko/Desktop/Code/LightGBM-Cybersecurity/data/raw/KDD5k.txt",
+  "cpu": {
+    "training_seconds": 6.623519971,
+    "accuracy": 0.993006993006993,
+    "single_prediction_ms": {
+      "mean_ms": 5.761005766667419,
+      "median_ms": 5.499070500000869,
+      "p95_ms": 7.225124999997945,
+      "min_ms": 5.080182999996907,
+      "max_ms": 7.672783000003847
+    },
+    "batch_prediction_ms": {
+      "mean_ms": 6.508817999999887,
+      "median_ms": 6.424394999996252,
+      "p95_ms": 7.220199000002481,
+      "min_ms": 6.029198000000235,
+      "max_ms": 7.220199000002481,
+      "batch_size": 128,
+      "per_item_mean_ms": 0.05085014062499912
+    }
+  },
+  "gpu": {
+    "training_seconds": 4.293619424999999,
+    "accuracy": 0.994005994005994,
+    "single_prediction_ms": {
+      "mean_ms": 6.3119634666662705,
+      "median_ms": 6.266462999999334,
+      "p95_ms": 8.104658999997127,
+      "min_ms": 5.217389999998545,
+      "max_ms": 8.579158999999947
+    },
+    "batch_prediction_ms": {
+      "mean_ms": 7.169095333333075,
+      "median_ms": 7.078804999999022,
+      "p95_ms": 9.650424000000157,
+      "min_ms": 5.998118999997359,
+      "max_ms": 9.650424000000157,
+      "batch_size": 128,
+      "per_item_mean_ms": 0.05600855729166465
+    }
+  },
+  "speedup": {
+    "training_x": 1.5426425389343867,
+    "single_prediction_x": 0.9127121532137376,
+    "batch_prediction_x": 0.907899490433166
+  }
+}
