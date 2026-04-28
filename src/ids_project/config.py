@@ -30,8 +30,14 @@ class TrainingConfig:
     report_dir: Path = Path("reports/latest")
     learning_rate: float = 0.05
     num_leaves: int = 31
+    max_depth: int = -1
     n_estimators: int = 300
     min_child_samples: int = 20
+    feature_fraction: float = 1.0
+    bagging_fraction: float = 1.0
+    bagging_freq: int = 0
+    lambda_l1: float = 0.0
+    lambda_l2: float = 0.0
     threshold: float = 0.5
     early_stopping_rounds: int = 30
     categorical_min_frequency: int = 2
