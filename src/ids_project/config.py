@@ -4,6 +4,14 @@ from typing import Any
 from dataclasses import dataclass, field
 from pathlib import Path
 
+DEFAULT_CLASS_WEIGHTS = {
+    "normal": 1.0,
+    "dos": 1.0,
+    "probe": 1.0,
+    "r2l": 1.5,
+    "u2r": 2.0,
+}
+
 
 @dataclass(slots=True)
 class PathsConfig:
@@ -51,7 +59,7 @@ class TrainingConfig:
     gpu_device_id: int = 0
     progress_bar: bool = True
     use_smote: bool = True
-    custom_class_weights: dict[str, float] | None = None
+    custom_class_weights: dict[str, float] | None = field(default_factory=lambda: dict(DEFAULT_CLASS_WEIGHTS))
     notes: str = ""
     extra_metadata: dict[str, Any] = field(default_factory=dict)
 

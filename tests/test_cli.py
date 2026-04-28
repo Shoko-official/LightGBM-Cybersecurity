@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ids_project.config import DEFAULT_CLASS_WEIGHTS
 from ids_project.cli import build_parser, build_training_config
 
 
@@ -59,7 +60,7 @@ def test_build_training_config_maps_train_arguments():
     assert config.custom_class_weights == {"probe": 3.5}
 
 
-def test_build_training_config_leaves_class_weights_empty_by_default():
+def test_build_training_config_uses_default_class_weights():
     parser = build_parser()
     args = parser.parse_args(
         [
@@ -71,7 +72,7 @@ def test_build_training_config_leaves_class_weights_empty_by_default():
 
     config = build_training_config(args)
 
-    assert config.custom_class_weights is None
+    assert config.custom_class_weights == DEFAULT_CLASS_WEIGHTS
 
 
 def test_cli_parser_accepts_predict_one_command():
