@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install lightgbm
+      - name: Run tests
+        run: pytest -q
+      - name: Compile scripts
+        run: python -m compileall src tests run_training.py run_model_search.py run_rare_class_search.py run_u2r_search.py run_benchmark.py run_external_validation.py run_gpu_smoke_test.py run_release_checks.py

@@ -1,0 +1,68 @@
+name: Release Checks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cpu-release-checks:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install lightgbm
+      - name: Run tests
+        run: pytest -q
+      - name: Check dataset presence
+        id: datasets
+        shell: pwsh
+        run: |
+          if ((Test-Path "data/raw/KDDTrain+.txt") -and (Test-Path "data/raw/KDDTest+.txt")) {
+            "present=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "present=false" >> $env:GITHUB_OUTPUT
+          }
+      - name: Run release checks
+        if: steps.datasets.outputs.present == 'true'
+        run: python -u run_release_checks.py
+      - name: Upload release reports
+        if: steps.datasets.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-reports
+          path: |
+            reports/release/summary.json
+            reports/release/summary.md
+            reports/external_validation/summary.json
+            reports/benchmarks/cpu_runtime.json
+
+  gpu-smoke:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, windows, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install lightgbm
+      - name: Run GPU diagnostics
+        run: python -u run_gpu_diagnostics.py
+      - name: Run GPU smoke
+        run: python -u run_gpu_smoke_test.py
+      - name: Upload GPU reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpu-reports
+          path: |
+            reports/gpu_diagnostics/summary.json
+            reports/gpu_diagnostics/summary.md
+            reports/gpu_smoke/result.json
