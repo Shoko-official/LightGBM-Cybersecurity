@@ -10,12 +10,14 @@ def add_training_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--artifact-dir", default="artifacts/latest")
     parser.add_argument("--report-dir", default="reports/latest")
-    parser.add_argument("--estimators", type=int, default=300)
+    parser.add_argument("--profile", default="default-prod")
+    parser.add_argument("--estimators", type=int)
     parser.add_argument("--gpu", action="store_true")
     parser.add_argument("--gpu-platform-id", type=int, default=0)
     parser.add_argument("--gpu-device-id", type=int, default=0)
     parser.add_argument("--no-smote", action="store_true")
     parser.add_argument("--no-progress", action="store_true")
+    parser.add_argument("--no-class-weights", action="store_true")
     parser.add_argument(
         "--class-weight",
         action="append",
@@ -86,20 +88,28 @@ def main() -> None:
 
 
 def build_training_config(args: argparse.Namespace):
-    from ids_project.config import TrainingConfig
+    from ids_project.config import TrainingConfig, build_profile_config
 
     class_weights = _parse_class_weights(args.class_weight)
-    config_kwargs = dict(
-        dataset_path=Path(args.dataset),
-        artifact_dir=Path(args.artifact_dir),
-        report_dir=Path(args.report_dir),
-        n_estimators=args.estimators,
-        use_gpu=args.gpu,
-        gpu_platform_id=args.gpu_platform_id,
-        gpu_device_id=args.gpu_device_id,
-        progress_bar=not args.no_progress,
-        use_smote=not args.no_smote,
+    config_kwargs = build_profile_config(args.profile)
+    config_kwargs.update(
+        dict(
+            dataset_path=Path(args.dataset),
+            artifact_dir=Path(args.artifact_dir),
+            report_dir=Path(args.report_dir),
+            profile_name=args.profile,
+            use_gpu=args.gpu,
+            gpu_platform_id=args.gpu_platform_id,
+            gpu_device_id=args.gpu_device_id,
+            progress_bar=not args.no_progress,
+        )
     )
+    if args.estimators is not None:
+        config_kwargs["n_estimators"] = args.estimators
+    if args.no_smote:
+        config_kwargs["use_smote"] = False
+    if args.no_class_weights:
+        config_kwargs["custom_class_weights"] = None
     if class_weights:
         config_kwargs["custom_class_weights"] = class_weights
     return TrainingConfig(**config_kwargs)
