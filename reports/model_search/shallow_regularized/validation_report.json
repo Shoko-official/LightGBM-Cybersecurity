@@ -1,0 +1,182 @@
+{
+  "model_name": "lightgbm",
+  "threshold": 0.5,
+  "metrics": {
+    "accuracy": 0.9989282737268289,
+    "precision": 0.9330268718436698,
+    "recall": 0.9577047948448344,
+    "f1_score": 0.9443165017292184,
+    "roc_auc": 0.9991902146626754,
+    "average_precision": 0.0
+  },
+  "confusion_matrix": [
+    [
+      13462,
+      0,
+      1,
+      4,
+      1
+    ],
+    [
+      5,
+      9179,
+      1,
+      0,
+      0
+    ],
+    [
+      8,
+      0,
+      2322,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      194,
+      3
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      9
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.9988,
+      "recall": 0.9996,
+      "f1-score": 0.9992,
+      "support": 13468.0
+    },
+    "1": {
+      "precision": 1.0,
+      "recall": 0.9993,
+      "f1-score": 0.9997,
+      "support": 9185.0
+    },
+    "2": {
+      "precision": 0.9991,
+      "recall": 0.9966,
+      "f1-score": 0.9979,
+      "support": 2330.0
+    },
+    "3": {
+      "precision": 0.9749,
+      "recall": 0.9749,
+      "f1-score": 0.9749,
+      "support": 199.0
+    },
+    "4": {
+      "precision": 0.6923,
+      "recall": 0.8182,
+      "f1-score": 0.75,
+      "support": 11.0
+    },
+    "accuracy": {
+      "value": 0.9989
+    },
+    "macro avg": {
+      "precision": 0.933,
+      "recall": 0.9577,
+      "f1-score": 0.9443,
+      "support": 25193.0
+    },
+    "weighted avg": {
+      "precision": 0.999,
+      "recall": 0.9989,
+      "f1-score": 0.9989,
+      "support": 25193.0
+    }
+  },
+  "top_features": [
+    {
+      "feature": "skewed__src_bytes",
+      "importance": 2003.0
+    },
+    {
+      "feature": "categorical__service",
+      "importance": 1727.0
+    },
+    {
+      "feature": "skewed__dst_bytes",
+      "importance": 1200.0
+    },
+    {
+      "feature": "numeric__dst_host_srv_count",
+      "importance": 1133.0
+    },
+    {
+      "feature": "unsupervised_anomaly_score",
+      "importance": 1084.0
+    },
+    {
+      "feature": "skewed__duration",
+      "importance": 986.0
+    },
+    {
+      "feature": "numeric__dst_host_diff_srv_rate",
+      "importance": 841.0
+    },
+    {
+      "feature": "numeric__dst_host_count",
+      "importance": 757.0
+    },
+    {
+      "feature": "numeric__dst_host_same_src_port_rate",
+      "importance": 753.0
+    },
+    {
+      "feature": "numeric__dst_host_serror_rate",
+      "importance": 664.0
+    },
+    {
+      "feature": "numeric__hot",
+      "importance": 613.0
+    },
+    {
+      "feature": "categorical__protocol_type",
+      "importance": 601.0
+    },
+    {
+      "feature": "numeric__dst_host_srv_diff_host_rate",
+      "importance": 596.0
+    },
+    {
+      "feature": "numeric__dst_host_same_srv_rate",
+      "importance": 587.0
+    },
+    {
+      "feature": "numeric__dst_host_rerror_rate",
+      "importance": 533.0
+    }
+  ],
+  "split_name": "validation",
+  "attack_category_recall": {
+    "neptune": 0.9997573698896033,
+    "warezclient": 1.0,
+    "satan": 0.990358126721763,
+    "teardrop": 1.0,
+    "smurf": 1.0,
+    "ipsweep": 1.0,
+    "portsweep": 0.9982935153583617,
+    "nmap": 1.0,
+    "pod": 0.975,
+    "back": 0.9947643979057592,
+    "multihop": 0.0,
+    "rootkit": 0.5,
+    "buffer_overflow": 1.0,
+    "land": 0.5,
+    "guess_passwd": 1.0,
+    "warezmaster": 0.75,
+    "loadmodule": 1.0,
+    "ftp_write": 0.0,
+    "imap": 1.0,
+    "perl": 0.0,
+    "phf": 1.0
+  }
+}

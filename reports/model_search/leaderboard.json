@@ -1,0 +1,217 @@
+{
+  "train_dataset": "data\\raw\\KDDTrain+.txt",
+  "external_dataset": "data\\raw\\KDDTest+.txt",
+  "candidate_count": 5,
+  "best_candidate": "baseline_prod",
+  "best_artifact_dir": "artifacts\\model_search\\best",
+  "production_defaults": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "min_child_samples": 20,
+    "feature_fraction": 1.0,
+    "bagging_fraction": 1.0,
+    "bagging_freq": 0,
+    "lambda_l1": 0.0,
+    "lambda_l2": 0.0,
+    "use_smote": true
+  },
+  "ranked_results": [
+    {
+      "name": "baseline_prod",
+      "params": {
+        "n_estimators": 200,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "feature_fraction": 1.0,
+        "bagging_fraction": 1.0,
+        "bagging_freq": 0,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.0,
+        "use_smote": true
+      },
+      "artifact_dir": "artifacts\\model_search\\baseline_prod",
+      "report_dir": "reports\\model_search\\baseline_prod",
+      "validation_metrics": {
+        "accuracy": 0.9986901123327908,
+        "macro_precision": 0.9275707379717376,
+        "macro_recall": 0.9383373515410549,
+        "macro_f1": 0.9326890533868951,
+        "roc_auc": 0.9989777640109928
+      },
+      "external_metrics": {
+        "accuracy": 0.7711142654364798,
+        "macro_precision": 0.8280483824028402,
+        "macro_recall": 0.5411225436879638,
+        "macro_f1": 0.5707715626196306,
+        "roc_auc": 0.9288659529787898
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9723,
+        "validation_u2r": 0.6957,
+        "external_r2l": 0.2989,
+        "external_u2r": 0.1435
+      },
+      "validation_report_path": "reports\\model_search\\baseline_prod\\validation_report.json",
+      "external_report_path": "reports\\model_search\\baseline_prod\\external_report.json"
+    },
+    {
+      "name": "shallow_regularized",
+      "params": {
+        "n_estimators": 260,
+        "learning_rate": 0.06,
+        "num_leaves": 15,
+        "max_depth": 8,
+        "min_child_samples": 40,
+        "feature_fraction": 0.85,
+        "bagging_fraction": 0.8,
+        "bagging_freq": 1,
+        "lambda_l1": 0.2,
+        "lambda_l2": 1.0,
+        "use_smote": true
+      },
+      "artifact_dir": "artifacts\\model_search\\shallow_regularized",
+      "report_dir": "reports\\model_search\\shallow_regularized",
+      "validation_metrics": {
+        "accuracy": 0.9989282737268289,
+        "macro_precision": 0.9330268718436698,
+        "macro_recall": 0.9577047948448344,
+        "macro_f1": 0.9443165017292184,
+        "roc_auc": 0.9991902146626754
+      },
+      "external_metrics": {
+        "accuracy": 0.7696061036195884,
+        "macro_precision": 0.8271612187345803,
+        "macro_recall": 0.5367249409910904,
+        "macro_f1": 0.5689955149148924,
+        "roc_auc": 0.9288399388710294
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9749,
+        "validation_u2r": 0.75,
+        "external_r2l": 0.2741,
+        "external_u2r": 0.1747
+      },
+      "validation_report_path": "reports\\model_search\\shallow_regularized\\validation_report.json",
+      "external_report_path": "reports\\model_search\\shallow_regularized\\external_report.json"
+    },
+    {
+      "name": "rare_class_focus",
+      "params": {
+        "n_estimators": 240,
+        "learning_rate": 0.03,
+        "num_leaves": 63,
+        "min_child_samples": 10,
+        "feature_fraction": 0.95,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.2,
+        "use_smote": true
+      },
+      "artifact_dir": "artifacts\\model_search\\rare_class_focus",
+      "report_dir": "reports\\model_search\\rare_class_focus",
+      "validation_metrics": {
+        "accuracy": 0.9988488865954829,
+        "macro_precision": 0.9249138363950683,
+        "macro_recall": 0.9566277820447413,
+        "macro_f1": 0.9386553768353997,
+        "roc_auc": 0.9993958381264951
+      },
+      "external_metrics": {
+        "accuracy": 0.7684528034066714,
+        "macro_precision": 0.8240602241774097,
+        "macro_recall": 0.5376197429742227,
+        "macro_f1": 0.5688589725516012,
+        "roc_auc": 0.9100417767769095
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9772,
+        "validation_u2r": 0.72,
+        "external_r2l": 0.3013,
+        "external_u2r": 0.1429
+      },
+      "validation_report_path": "reports\\model_search\\rare_class_focus\\validation_report.json",
+      "external_report_path": "reports\\model_search\\rare_class_focus\\external_report.json"
+    },
+    {
+      "name": "regularized_bagging",
+      "params": {
+        "n_estimators": 240,
+        "learning_rate": 0.04,
+        "num_leaves": 31,
+        "min_child_samples": 40,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.8,
+        "bagging_freq": 1,
+        "lambda_l1": 0.0,
+        "lambda_l2": 1.0,
+        "use_smote": true
+      },
+      "artifact_dir": "artifacts\\model_search\\regularized_bagging",
+      "report_dir": "reports\\model_search\\regularized_bagging",
+      "validation_metrics": {
+        "accuracy": 0.9988885801611559,
+        "macro_precision": 0.9287620921645958,
+        "macro_recall": 0.9385466507876442,
+        "macro_f1": 0.9333856268397,
+        "roc_auc": 0.9993479825184896
+      },
+      "external_metrics": {
+        "accuracy": 0.7692955997161107,
+        "macro_precision": 0.8309000196213849,
+        "macro_recall": 0.5419410682659248,
+        "macro_f1": 0.5678394920737737,
+        "roc_auc": 0.9339628337139049
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9747,
+        "validation_u2r": 0.6957,
+        "external_r2l": 0.261,
+        "external_u2r": 0.16
+      },
+      "validation_report_path": "reports\\model_search\\regularized_bagging\\validation_report.json",
+      "external_report_path": "reports\\model_search\\regularized_bagging\\external_report.json"
+    },
+    {
+      "name": "wider_trees",
+      "params": {
+        "n_estimators": 220,
+        "learning_rate": 0.04,
+        "num_leaves": 63,
+        "min_child_samples": 20,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.5,
+        "use_smote": true
+      },
+      "artifact_dir": "artifacts\\model_search\\wider_trees",
+      "report_dir": "reports\\model_search\\wider_trees",
+      "validation_metrics": {
+        "accuracy": 0.9988488865954829,
+        "macro_precision": 0.9287471619406149,
+        "macro_recall": 0.938460813877773,
+        "macro_f1": 0.9333351361385447,
+        "roc_auc": 0.999524676784753
+      },
+      "external_metrics": {
+        "accuracy": 0.7625975869410929,
+        "macro_precision": 0.8131395696357357,
+        "macro_recall": 0.527796237818395,
+        "macro_f1": 0.5550780293763259,
+        "roc_auc": 0.9254765700575357
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9747,
+        "validation_u2r": 0.6957,
+        "external_r2l": 0.2532,
+        "external_u2r": 0.1504
+      },
+      "validation_report_path": "reports\\model_search\\wider_trees\\validation_report.json",
+      "external_report_path": "reports\\model_search\\wider_trees\\external_report.json"
+    }
+  ]
+}
