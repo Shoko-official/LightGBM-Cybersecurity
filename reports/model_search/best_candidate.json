@@ -1,0 +1,39 @@
+{
+  "name": "baseline_prod",
+  "params": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "min_child_samples": 20,
+    "feature_fraction": 1.0,
+    "bagging_fraction": 1.0,
+    "bagging_freq": 0,
+    "lambda_l1": 0.0,
+    "lambda_l2": 0.0,
+    "use_smote": true
+  },
+  "artifact_dir": "artifacts\\model_search\\baseline_prod",
+  "report_dir": "reports\\model_search\\baseline_prod",
+  "validation_metrics": {
+    "accuracy": 0.9986901123327908,
+    "macro_precision": 0.9275707379717376,
+    "macro_recall": 0.9383373515410549,
+    "macro_f1": 0.9326890533868951,
+    "roc_auc": 0.9989777640109928
+  },
+  "external_metrics": {
+    "accuracy": 0.7711142654364798,
+    "macro_precision": 0.8280483824028402,
+    "macro_recall": 0.5411225436879638,
+    "macro_f1": 0.5707715626196306,
+    "roc_auc": 0.9288659529787898
+  },
+  "rare_class_f1": {
+    "validation_r2l": 0.9723,
+    "validation_u2r": 0.6957,
+    "external_r2l": 0.2989,
+    "external_u2r": 0.1435
+  },
+  "validation_report_path": "reports\\model_search\\baseline_prod\\validation_report.json",
+  "external_report_path": "reports\\model_search\\baseline_prod\\external_report.json"
+}

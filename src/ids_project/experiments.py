@@ -8,7 +8,7 @@ from typing import Any
 from ids_project.artifacts import ensure_directory, load_runtime_bundle, save_json
 from ids_project.config import TrainingConfig
 from ids_project.data.dataset import load_dataset
-from ids_project.evaluation import evaluate
+from ids_project.evaluation import evaluate, save_report
 from ids_project.training import train
 
 
@@ -110,6 +110,7 @@ def run_model_search(
     results: list[dict[str, Any]] = []
     target_artifact_root = ensure_directory(artifact_root)
     target_report_root = ensure_directory(report_root)
+    workspace_root = Path.cwd().resolve()
 
     for index, candidate in enumerate(candidate_specs, start=1):
         name = candidate["name"]
@@ -128,12 +129,38 @@ def run_model_search(
         training_result = train(config)
         bundle = load_runtime_bundle(training_result.artifact_dir)
         external_report = evaluate(bundle, (external_features, external_labels), split_name="external")
+        external_report_path = save_report(external_report, candidate_report_dir, "external_report.json")
+        validation_metrics = training_result.validation_report.metrics
+        external_metrics = external_report.metrics
+        validation_classification = training_result.validation_report.classification_report
+        external_classification = external_report.classification_report
         result = {
             "name": name,
             "params": params,
-            "artifact_dir": str(training_result.artifact_dir),
-            "validation_report": training_result.validation_report.to_dict(),
-            "external_report": external_report.to_dict(),
+            "artifact_dir": _relative_path(training_result.artifact_dir, workspace_root),
+            "report_dir": _relative_path(candidate_report_dir, workspace_root),
+            "validation_metrics": {
+                "accuracy": validation_metrics.accuracy,
+                "macro_precision": validation_metrics.precision,
+                "macro_recall": validation_metrics.recall,
+                "macro_f1": validation_metrics.f1_score,
+                "roc_auc": validation_metrics.roc_auc,
+            },
+            "external_metrics": {
+                "accuracy": external_metrics.accuracy,
+                "macro_precision": external_metrics.precision,
+                "macro_recall": external_metrics.recall,
+                "macro_f1": external_metrics.f1_score,
+                "roc_auc": external_metrics.roc_auc,
+            },
+            "rare_class_f1": {
+                "validation_r2l": float(validation_classification.get("3", {}).get("f1-score", 0.0)),
+                "validation_u2r": float(validation_classification.get("4", {}).get("f1-score", 0.0)),
+                "external_r2l": float(external_classification.get("3", {}).get("f1-score", 0.0)),
+                "external_u2r": float(external_classification.get("4", {}).get("f1-score", 0.0)),
+            },
+            "validation_report_path": _relative_path(training_result.report_path, workspace_root),
+            "external_report_path": _relative_path(external_report_path, workspace_root),
         }
         results.append(result)
 
@@ -142,32 +169,33 @@ def run_model_search(
     best_alias_dir = target_artifact_root / "best"
     if best_alias_dir.exists():
         shutil.rmtree(best_alias_dir)
-    shutil.copytree(best_result["artifact_dir"], best_alias_dir)
+    shutil.copytree(workspace_root / best_result["artifact_dir"], best_alias_dir)
 
     summary = {
-        "train_dataset": str(train_dataset),
-        "external_dataset": str(external_dataset),
+        "train_dataset": _relative_path(train_dataset, workspace_root),
+        "external_dataset": _relative_path(external_dataset, workspace_root),
         "candidate_count": len(results),
         "best_candidate": best_result["name"],
-        "best_artifact_dir": str(best_alias_dir),
+        "best_artifact_dir": _relative_path(best_alias_dir, workspace_root),
+        "production_defaults": best_result["params"],
         "ranked_results": ranked_results,
     }
     save_json(target_report_root / "leaderboard.json", summary)
+    save_json(target_report_root / "best_candidate.json", best_result)
     (target_report_root / "leaderboard.md").write_text(_build_markdown_leaderboard(summary), encoding="utf-8")
     return summary
 
 
 def _ranking_key(result: dict[str, Any]) -> tuple[float, float, float, float, float]:
-    external_metrics = result["external_report"]["metrics"]
-    validation_metrics = result["validation_report"]["metrics"]
-    external_report = result["external_report"]["classification_report"]
-    r2l_f1 = float(external_report.get("3", {}).get("f1-score", 0.0))
-    u2r_f1 = float(external_report.get("4", {}).get("f1-score", 0.0))
+    external_metrics = result["external_metrics"]
+    validation_metrics = result["validation_metrics"]
+    r2l_f1 = float(result["rare_class_f1"]["external_r2l"])
+    u2r_f1 = float(result["rare_class_f1"]["external_u2r"])
     return (
-        float(external_metrics["f1_score"]),
+        float(external_metrics["macro_f1"]),
         u2r_f1,
         r2l_f1,
-        float(validation_metrics["f1_score"]),
+        float(validation_metrics["macro_f1"]),
         float(external_metrics["accuracy"]),
     )
 
@@ -185,16 +213,16 @@ def _build_markdown_leaderboard(summary: dict[str, Any]) -> str:
         "| --- | --- | ---: | ---: | ---: | ---: |",
     ]
     for index, result in enumerate(summary["ranked_results"], start=1):
-        external_metrics = result["external_report"]["metrics"]
-        validation_metrics = result["validation_report"]["metrics"]
-        external_report = result["external_report"]["classification_report"]
+        external_metrics = result["external_metrics"]
+        validation_metrics = result["validation_metrics"]
+        rare_class_f1 = result["rare_class_f1"]
         lines.append(
             "| "
             f"{index} | {result['name']} | "
-            f"{external_metrics['f1_score']:.4f} | "
-            f"{float(external_report.get('4', {}).get('f1-score', 0.0)):.4f} | "
-            f"{float(external_report.get('3', {}).get('f1-score', 0.0)):.4f} | "
-            f"{validation_metrics['f1_score']:.4f} |"
+            f"{external_metrics['macro_f1']:.4f} | "
+            f"{rare_class_f1['external_u2r']:.4f} | "
+            f"{rare_class_f1['external_r2l']:.4f} | "
+            f"{validation_metrics['macro_f1']:.4f} |"
         )
     lines.extend(
         [
@@ -211,3 +239,11 @@ def _build_markdown_leaderboard(summary: dict[str, Any]) -> str:
         lines.append("```")
         lines.append("")
     return "\n".join(lines)
+
+
+def _relative_path(path: str | Path, workspace_root: Path) -> str:
+    target = Path(path).resolve()
+    try:
+        return str(target.relative_to(workspace_root))
+    except ValueError:
+        return str(target)
