@@ -62,6 +62,7 @@ def train(config: TrainingConfig) -> TrainingResult:
     classes = list(preprocessing.label_encoder.classes_)
     metadata = dict(config.extra_metadata)
     metadata["classes"] = classes
+    metadata["profile_name"] = config.profile_name
     model_spec = build_lightgbm(config, classes)
     model = model_spec.estimator
 
