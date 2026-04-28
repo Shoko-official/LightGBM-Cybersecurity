@@ -66,13 +66,29 @@ def train(config: TrainingConfig) -> TrainingResult:
     model = model_spec.estimator
 
     try:
-        model.fit(train_frame, balanced_labels)
+        _fit_model(
+            model=model,
+            model_name=model_spec.name,
+            train_frame=train_frame,
+            train_labels=balanced_labels,
+            validation_frame=validation_frame,
+            validation_labels=validation_labels,
+            config=config,
+        )
     except Exception as exc:
         if config.use_gpu and model_spec.name == "lightgbm":
             print(f"GPU training failed, retrying on CPU: {exc}")
             model_spec = build_lightgbm(config, classes, use_gpu=False)
             model = model_spec.estimator
-            model.fit(train_frame, balanced_labels)
+            _fit_model(
+                model=model,
+                model_name=model_spec.name,
+                train_frame=train_frame,
+                train_labels=balanced_labels,
+                validation_frame=validation_frame,
+                validation_labels=validation_labels,
+                config=config,
+            )
             metadata["gpu_fallback_reason"] = str(exc)
         else:
             raise
@@ -138,6 +154,38 @@ def _metrics_to_dict(metrics: ModelMetrics) -> dict[str, float]:
         "roc_auc": metrics.roc_auc,
         "average_precision": metrics.average_precision,
     }
+
+
+def _fit_model(
+    model: object,
+    model_name: str,
+    train_frame: pd.DataFrame,
+    train_labels: np.ndarray,
+    validation_frame: pd.DataFrame,
+    validation_labels: pd.Series,
+    config: TrainingConfig,
+) -> None:
+    if model_name != "lightgbm":
+        model.fit(train_frame, train_labels)
+        return
+
+    try:
+        from lightgbm import early_stopping, log_evaluation
+    except ModuleNotFoundError:
+        model.fit(train_frame, train_labels)
+        return
+
+    callbacks = [
+        early_stopping(stopping_rounds=config.early_stopping_rounds, verbose=False),
+        log_evaluation(period=0),
+    ]
+    model.fit(
+        train_frame,
+        train_labels,
+        eval_set=[(validation_frame, validation_labels)],
+        eval_metric="multi_logloss",
+        callbacks=callbacks,
+    )
 
 
 def _balance_dataset(
