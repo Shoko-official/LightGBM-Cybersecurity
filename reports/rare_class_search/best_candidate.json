@@ -1,0 +1,46 @@
+{
+  "name": "baseline_small_weights",
+  "params": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "min_child_samples": 20,
+    "feature_fraction": 1.0,
+    "bagging_fraction": 1.0,
+    "bagging_freq": 0,
+    "lambda_l1": 0.0,
+    "lambda_l2": 0.0,
+    "use_smote": true,
+    "custom_class_weights": {
+      "normal": 1.0,
+      "dos": 1.0,
+      "probe": 1.0,
+      "r2l": 1.5,
+      "u2r": 2.0
+    }
+  },
+  "artifact_dir": "artifacts\\rare_class_search\\baseline_small_weights",
+  "report_dir": "reports\\rare_class_search\\baseline_small_weights",
+  "validation_metrics": {
+    "accuracy": 0.9987298058984638,
+    "macro_precision": 0.913888866817803,
+    "macro_recall": 0.920320282561276,
+    "macro_f1": 0.9168536910876627,
+    "roc_auc": 0.9986624879087174
+  },
+  "external_metrics": {
+    "accuracy": 0.7734208658623137,
+    "macro_precision": 0.8009518651852577,
+    "macro_recall": 0.54712135939132,
+    "macro_f1": 0.5750822391143869,
+    "roc_auc": 0.929774138785403
+  },
+  "rare_class_f1": {
+    "validation_r2l": 0.9797,
+    "validation_u2r": 0.6087,
+    "external_r2l": 0.3217,
+    "external_u2r": 0.1239
+  },
+  "validation_report_path": "reports\\rare_class_search\\baseline_small_weights\\validation_report.json",
+  "external_report_path": "reports\\rare_class_search\\baseline_small_weights\\external_report.json"
+}
