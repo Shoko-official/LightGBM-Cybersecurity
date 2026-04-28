@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ids_project.config import DEFAULT_CLASS_WEIGHTS
+from ids_project.config import DEFAULT_CLASS_WEIGHTS, PRODUCTION_PROFILE_NAME, U2R_SPECIALIST_PROFILE_NAME
 from ids_project.cli import build_parser, build_training_config
 
 
@@ -34,6 +34,7 @@ def test_cli_parser_accepts_train_command():
     assert args.no_smote is True
     assert args.no_progress is True
     assert args.class_weight == ["u2r=20", "r2l=10"]
+    assert args.profile == PRODUCTION_PROFILE_NAME
 
 
 def test_build_training_config_maps_train_arguments():
@@ -72,7 +73,44 @@ def test_build_training_config_uses_default_class_weights():
 
     config = build_training_config(args)
 
+    assert config.profile_name == PRODUCTION_PROFILE_NAME
     assert config.custom_class_weights == DEFAULT_CLASS_WEIGHTS
+
+
+def test_build_training_config_supports_specialist_profile():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "train",
+            "--dataset",
+            "data/raw/nsl_kdd.csv",
+            "--profile",
+            U2R_SPECIALIST_PROFILE_NAME,
+        ]
+    )
+
+    config = build_training_config(args)
+
+    assert config.profile_name == U2R_SPECIALIST_PROFILE_NAME
+    assert config.n_estimators == 260
+    assert config.num_leaves == 15
+    assert config.max_depth == 8
+
+
+def test_build_training_config_can_disable_profile_class_weights():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "train",
+            "--dataset",
+            "data/raw/nsl_kdd.csv",
+            "--no-class-weights",
+        ]
+    )
+
+    config = build_training_config(args)
+
+    assert config.custom_class_weights is None
 
 
 def test_cli_parser_accepts_predict_one_command():
