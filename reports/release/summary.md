@@ -19,6 +19,6 @@
 
 ## CPU benchmark
 
-- Single mean latency: `31.7173 ms`
-- Batch mean latency: `23.9645 ms`
-- Batch per-item mean latency: `0.187222 ms`
+- Single mean latency: `19.5311 ms`
+- Batch mean latency: `24.1613 ms`
+- Batch per-item mean latency: `0.188760 ms`
