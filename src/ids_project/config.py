@@ -9,7 +9,7 @@ DEFAULT_CLASS_WEIGHTS = {
     "dos": 1.0,
     "probe": 1.0,
     "r2l": 1.5,
-    "u2r": 2.0,
+    "u2r": 2.5,
 }
 
 

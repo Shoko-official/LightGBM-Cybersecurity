@@ -1,0 +1,259 @@
+{
+  "train_dataset": "data\\raw\\KDDTrain+.txt",
+  "external_dataset": "data\\raw\\KDDTest+.txt",
+  "candidate_count": 5,
+  "best_candidate": "u2r_weight_2_5",
+  "best_artifact_dir": "artifacts\\u2r_search\\best",
+  "production_defaults": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "min_child_samples": 20,
+    "feature_fraction": 1.0,
+    "bagging_fraction": 1.0,
+    "bagging_freq": 0,
+    "lambda_l1": 0.0,
+    "lambda_l2": 0.0,
+    "use_smote": true,
+    "custom_class_weights": {
+      "normal": 1.0,
+      "dos": 1.0,
+      "probe": 1.0,
+      "r2l": 1.5,
+      "u2r": 2.5
+    }
+  },
+  "ranked_results": [
+    {
+      "name": "u2r_weight_2_5",
+      "params": {
+        "n_estimators": 200,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "feature_fraction": 1.0,
+        "bagging_fraction": 1.0,
+        "bagging_freq": 0,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.0,
+        "use_smote": true,
+        "custom_class_weights": {
+          "normal": 1.0,
+          "dos": 1.0,
+          "probe": 1.0,
+          "r2l": 1.5,
+          "u2r": 2.5
+        }
+      },
+      "artifact_dir": "artifacts\\u2r_search\\u2r_weight_2_5",
+      "report_dir": "reports\\u2r_search\\u2r_weight_2_5",
+      "validation_metrics": {
+        "accuracy": 0.9986901123327908,
+        "macro_precision": 0.9233920366369853,
+        "macro_recall": 0.9202482948868109,
+        "macro_f1": 0.9218087945519935,
+        "roc_auc": 0.9993860523987657
+      },
+      "external_metrics": {
+        "accuracy": 0.7730660042583393,
+        "macro_precision": 0.8002247436943539,
+        "macro_recall": 0.5458139770084253,
+        "macro_f1": 0.5755654112494242,
+        "roc_auc": 0.9329319318283424
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9772,
+        "validation_u2r": 0.6364,
+        "external_r2l": 0.3343,
+        "external_u2r": 0.1239
+      },
+      "validation_report_path": "reports\\u2r_search\\u2r_weight_2_5\\validation_report.json",
+      "external_report_path": "reports\\u2r_search\\u2r_weight_2_5\\external_report.json"
+    },
+    {
+      "name": "u2r_weight_2_5_regularized",
+      "params": {
+        "n_estimators": 220,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 30,
+        "feature_fraction": 0.95,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambda_l1": 0.1,
+        "lambda_l2": 0.5,
+        "use_smote": true,
+        "custom_class_weights": {
+          "normal": 1.0,
+          "dos": 1.0,
+          "probe": 1.0,
+          "r2l": 1.5,
+          "u2r": 2.5
+        }
+      },
+      "artifact_dir": "artifacts\\u2r_search\\u2r_weight_2_5_regularized",
+      "report_dir": "reports\\u2r_search\\u2r_weight_2_5_regularized",
+      "validation_metrics": {
+        "accuracy": 0.9987694994641368,
+        "macro_precision": 0.9417376853549347,
+        "macro_recall": 0.9384241892303699,
+        "macro_f1": 0.9400693714779293,
+        "roc_auc": 0.9991122034123535
+      },
+      "external_metrics": {
+        "accuracy": 0.7711142654364798,
+        "macro_precision": 0.8219765821193121,
+        "macro_recall": 0.5428989476956267,
+        "macro_f1": 0.5752876625646375,
+        "roc_auc": 0.9307452173786436
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9772,
+        "validation_u2r": 0.7273,
+        "external_r2l": 0.3201,
+        "external_u2r": 0.1504
+      },
+      "validation_report_path": "reports\\u2r_search\\u2r_weight_2_5_regularized\\validation_report.json",
+      "external_report_path": "reports\\u2r_search\\u2r_weight_2_5_regularized\\external_report.json"
+    },
+    {
+      "name": "rare_class_prod",
+      "params": {
+        "n_estimators": 200,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "feature_fraction": 1.0,
+        "bagging_fraction": 1.0,
+        "bagging_freq": 0,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.0,
+        "use_smote": true,
+        "custom_class_weights": {
+          "normal": 1.0,
+          "dos": 1.0,
+          "probe": 1.0,
+          "r2l": 1.5,
+          "u2r": 2.0
+        }
+      },
+      "artifact_dir": "artifacts\\u2r_search\\rare_class_prod",
+      "report_dir": "reports\\u2r_search\\rare_class_prod",
+      "validation_metrics": {
+        "accuracy": 0.9987298058984638,
+        "macro_precision": 0.913888866817803,
+        "macro_recall": 0.920320282561276,
+        "macro_f1": 0.9168536910876627,
+        "roc_auc": 0.9986624879087174
+      },
+      "external_metrics": {
+        "accuracy": 0.7734208658623137,
+        "macro_precision": 0.8009518651852577,
+        "macro_recall": 0.54712135939132,
+        "macro_f1": 0.5750822391143869,
+        "roc_auc": 0.929774138785403
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9797,
+        "validation_u2r": 0.6087,
+        "external_r2l": 0.3217,
+        "external_u2r": 0.1239
+      },
+      "validation_report_path": "reports\\u2r_search\\rare_class_prod\\validation_report.json",
+      "external_report_path": "reports\\u2r_search\\rare_class_prod\\external_report.json"
+    },
+    {
+      "name": "shallow_u2r_weighted",
+      "params": {
+        "n_estimators": 260,
+        "learning_rate": 0.06,
+        "num_leaves": 15,
+        "max_depth": 8,
+        "min_child_samples": 40,
+        "feature_fraction": 0.85,
+        "bagging_fraction": 0.8,
+        "bagging_freq": 1,
+        "lambda_l1": 0.2,
+        "lambda_l2": 1.0,
+        "use_smote": true,
+        "custom_class_weights": {
+          "normal": 1.0,
+          "dos": 1.0,
+          "probe": 1.0,
+          "r2l": 1.5,
+          "u2r": 2.5
+        }
+      },
+      "artifact_dir": "artifacts\\u2r_search\\shallow_u2r_weighted",
+      "report_dir": "reports\\u2r_search\\shallow_u2r_weighted",
+      "validation_metrics": {
+        "accuracy": 0.9988091930298099,
+        "macro_precision": 0.9347897199933846,
+        "macro_recall": 0.9575182710102419,
+        "macro_f1": 0.9450996534876392,
+        "roc_auc": 0.9991811231461474
+      },
+      "external_metrics": {
+        "accuracy": 0.7713804116394606,
+        "macro_precision": 0.8275398210023746,
+        "macro_recall": 0.5380923390080982,
+        "macro_f1": 0.5736332778052341,
+        "roc_auc": 0.9399756851457957
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9798,
+        "validation_u2r": 0.75,
+        "external_r2l": 0.3235,
+        "external_u2r": 0.1674
+      },
+      "validation_report_path": "reports\\u2r_search\\shallow_u2r_weighted\\validation_report.json",
+      "external_report_path": "reports\\u2r_search\\shallow_u2r_weighted\\external_report.json"
+    },
+    {
+      "name": "u2r_weight_3",
+      "params": {
+        "n_estimators": 200,
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "feature_fraction": 1.0,
+        "bagging_fraction": 1.0,
+        "bagging_freq": 0,
+        "lambda_l1": 0.0,
+        "lambda_l2": 0.0,
+        "use_smote": true,
+        "custom_class_weights": {
+          "normal": 1.0,
+          "dos": 1.0,
+          "probe": 1.0,
+          "r2l": 1.5,
+          "u2r": 3.0
+        }
+      },
+      "artifact_dir": "artifacts\\u2r_search\\u2r_weight_3",
+      "report_dir": "reports\\u2r_search\\u2r_weight_3",
+      "validation_metrics": {
+        "accuracy": 0.9986504187671178,
+        "macro_precision": 0.9370913932481614,
+        "macro_recall": 0.9200776218465123,
+        "macro_f1": 0.9282609866468535,
+        "roc_auc": 0.9992627108349076
+      },
+      "external_metrics": {
+        "accuracy": 0.7713804116394606,
+        "macro_precision": 0.7916030192322752,
+        "macro_recall": 0.5437755575729327,
+        "macro_f1": 0.5728637618061666,
+        "roc_auc": 0.9296040269480257
+      },
+      "rare_class_f1": {
+        "validation_r2l": 0.9797,
+        "validation_u2r": 0.6667,
+        "external_r2l": 0.3273,
+        "external_u2r": 0.1228
+      },
+      "validation_report_path": "reports\\u2r_search\\u2r_weight_3\\validation_report.json",
+      "external_report_path": "reports\\u2r_search\\u2r_weight_3\\external_report.json"
+    }
+  ]
+}
