@@ -59,6 +59,21 @@ def test_build_training_config_maps_train_arguments():
     assert config.custom_class_weights == {"probe": 3.5}
 
 
+def test_build_training_config_leaves_class_weights_empty_by_default():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "train",
+            "--dataset",
+            "data/raw/nsl_kdd.csv",
+        ]
+    )
+
+    config = build_training_config(args)
+
+    assert config.custom_class_weights is None
+
+
 def test_cli_parser_accepts_predict_one_command():
     parser = build_parser()
     args = parser.parse_args(
