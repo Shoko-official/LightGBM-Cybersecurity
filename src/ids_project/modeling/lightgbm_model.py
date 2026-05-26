@@ -23,7 +23,9 @@ def build_lightgbm(
     try:
         from lightgbm import LGBMClassifier
         from sklearn.linear_model import LogisticRegression
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as exc:
+        if config.require_gpu or use_gpu:
+            raise RuntimeError("LightGBM must be installed when GPU training is requested.") from exc
         return ModelSpec(
             name="lightgbm_fallback_logistic_regression",
             estimator=LogisticRegression(

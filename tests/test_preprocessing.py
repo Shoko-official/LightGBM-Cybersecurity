@@ -6,6 +6,7 @@ import pytest
 from ids_project.config import TrainingConfig
 from ids_project.data.dataset import load_dataset
 from ids_project.preprocessing import fit_preprocessing, transform_features, transform_labels
+from ids_project.training import _balance_dataset
 
 
 def test_preprocessing_is_deterministic(sample_dataset_path):
@@ -28,3 +29,25 @@ def test_preprocessing_rejects_missing_columns(sample_dataset_path):
 
     with pytest.raises(ValueError, match="missing columns"):
         fit_preprocessing(features, labels, TrainingConfig(dataset_path=sample_dataset_path))
+
+
+def test_balancing_duplicates_existing_rows_without_synthetic_values(sample_dataset_path):
+    features = np.array(
+        [
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+        ]
+    )
+    labels = np.array([0, 1, 1])
+
+    balanced_features, balanced_labels = _balance_dataset(
+        features,
+        labels,
+        TrainingConfig(dataset_path=sample_dataset_path),
+    )
+
+    original_rows = {tuple(row) for row in features.tolist()}
+    assert len(balanced_features) == 4
+    assert set(balanced_labels.tolist()) == {0, 1}
+    assert all(tuple(row) in original_rows for row in balanced_features.tolist())

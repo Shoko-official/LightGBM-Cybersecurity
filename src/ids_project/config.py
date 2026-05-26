@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import platform
-from typing import Any
 from dataclasses import dataclass, field
 from pathlib import Path
+import platform
+from typing import Any
 
 PRODUCTION_PROFILE_NAME = "default-prod"
 U2R_SPECIALIST_PROFILE_NAME = "u2r-specialist"
@@ -126,6 +126,9 @@ class TrainingConfig:
     notes: str = ""
     extra_metadata: dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        self.validate()
+
     @property
     def paths(self) -> PathsConfig:
         return PathsConfig(
@@ -133,3 +136,61 @@ class TrainingConfig:
             artifact_dir=self.artifact_dir,
             report_dir=self.report_dir,
         ).resolve()
+
+    def validate(self) -> None:
+        _validate_ratio("test_size", self.test_size, lower=0.0, upper=1.0, include_upper=False)
+        _validate_ratio("validation_size", self.validation_size, lower=0.0, upper=1.0, include_upper=False)
+        _validate_ratio("threshold", self.threshold, lower=0.0, upper=1.0, include_lower=True, include_upper=True)
+        _validate_ratio(
+            "numeric_clip_quantile",
+            self.numeric_clip_quantile,
+            lower=0.5,
+            upper=1.0,
+            include_upper=False,
+        )
+        _validate_ratio("feature_fraction", self.feature_fraction, lower=0.0, upper=1.0, include_upper=True)
+        _validate_ratio("bagging_fraction", self.bagging_fraction, lower=0.0, upper=1.0, include_upper=True)
+        if self.n_estimators <= 0:
+            raise ValueError("n_estimators must be greater than 0.")
+        if self.num_leaves <= 1:
+            raise ValueError("num_leaves must be greater than 1.")
+        if self.min_child_samples <= 0:
+            raise ValueError("min_child_samples must be greater than 0.")
+        if self.early_stopping_rounds <= 0:
+            raise ValueError("early_stopping_rounds must be greater than 0.")
+        if self.report_top_features <= 0:
+            raise ValueError("report_top_features must be greater than 0.")
+        if self.report_precision_digits < 0:
+            raise ValueError("report_precision_digits must be non-negative.")
+        if self.gpu_platform_id < 0 or self.gpu_device_id < 0:
+            raise ValueError("GPU platform and device ids must be non-negative.")
+        if self.require_gpu and not self.use_gpu:
+            raise ValueError("require_gpu=True requires use_gpu=True.")
+        if self.require_gpu and self.allow_gpu_fallback:
+            raise ValueError("require_gpu=True cannot allow CPU fallback.")
+        if self.custom_class_weights:
+            invalid_weights = {
+                label: weight
+                for label, weight in self.custom_class_weights.items()
+                if weight <= 0
+            }
+            if invalid_weights:
+                labels = ", ".join(sorted(invalid_weights))
+                raise ValueError(f"Class weights must be greater than 0 for: {labels}.")
+
+
+def _validate_ratio(
+    name: str,
+    value: float,
+    *,
+    lower: float,
+    upper: float,
+    include_lower: bool = False,
+    include_upper: bool = False,
+) -> None:
+    lower_ok = value >= lower if include_lower else value > lower
+    upper_ok = value <= upper if include_upper else value < upper
+    if not lower_ok or not upper_ok:
+        left = "[" if include_lower else "("
+        right = "]" if include_upper else ")"
+        raise ValueError(f"{name} must be in range {left}{lower}, {upper}{right}.")

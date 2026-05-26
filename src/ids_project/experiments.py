@@ -128,8 +128,16 @@ def run_model_search(
         )
         training_result = train(config)
         bundle = load_runtime_bundle(training_result.artifact_dir)
-        external_report = evaluate(bundle, (external_features, external_labels), split_name="external")
-        external_report_path = save_report(external_report, candidate_report_dir, "external_report.json")
+        external_report = evaluate(
+            bundle,
+            (external_features, external_labels),
+            split_name="external",
+        )
+        external_report_path = save_report(
+            external_report,
+            candidate_report_dir,
+            "external_report.json",
+        )
         validation_metrics = training_result.validation_report.metrics
         external_metrics = external_report.metrics
         validation_classification = training_result.validation_report.classification_report
@@ -154,10 +162,10 @@ def run_model_search(
                 "roc_auc": external_metrics.roc_auc,
             },
             "rare_class_f1": {
-                "validation_r2l": float(validation_classification.get("3", {}).get("f1-score", 0.0)),
-                "validation_u2r": float(validation_classification.get("4", {}).get("f1-score", 0.0)),
-                "external_r2l": float(external_classification.get("3", {}).get("f1-score", 0.0)),
-                "external_u2r": float(external_classification.get("4", {}).get("f1-score", 0.0)),
+                "validation_r2l": _class_f1(validation_classification, "r2l", "3"),
+                "validation_u2r": _class_f1(validation_classification, "u2r", "4"),
+                "external_r2l": _class_f1(external_classification, "r2l", "3"),
+                "external_u2r": _class_f1(external_classification, "u2r", "4"),
             },
             "validation_report_path": _relative_path(training_result.report_path, workspace_root),
             "external_report_path": _relative_path(external_report_path, workspace_root),
@@ -167,9 +175,11 @@ def run_model_search(
     ranked_results = sorted(results, key=_ranking_key, reverse=True)
     best_result = ranked_results[0]
     best_alias_dir = target_artifact_root / "best"
-    if best_alias_dir.exists():
-        shutil.rmtree(best_alias_dir)
-    shutil.copytree(workspace_root / best_result["artifact_dir"], best_alias_dir)
+    _replace_best_alias(
+        workspace_root / best_result["artifact_dir"],
+        best_alias_dir,
+        target_artifact_root,
+    )
 
     summary = {
         "train_dataset": _relative_path(train_dataset, workspace_root),
@@ -182,7 +192,10 @@ def run_model_search(
     }
     save_json(target_report_root / "leaderboard.json", summary)
     save_json(target_report_root / "best_candidate.json", best_result)
-    (target_report_root / "leaderboard.md").write_text(_build_markdown_leaderboard(summary), encoding="utf-8")
+    (target_report_root / "leaderboard.md").write_text(
+        _build_markdown_leaderboard(summary),
+        encoding="utf-8",
+    )
     return summary
 
 
@@ -198,6 +211,25 @@ def _ranking_key(result: dict[str, Any]) -> tuple[float, float, float, float, fl
         float(validation_metrics["macro_f1"]),
         float(external_metrics["accuracy"]),
     )
+
+
+def _class_f1(report: dict[str, dict[str, float]], label: str, legacy_label: str) -> float:
+    return float(report.get(label, report.get(legacy_label, {})).get("f1-score", 0.0))
+
+
+def _replace_best_alias(source_dir: Path, best_alias_dir: Path, artifact_root: Path) -> None:
+    source = source_dir.resolve()
+    target = best_alias_dir.resolve()
+    root = artifact_root.resolve()
+    if not source.is_relative_to(root):
+        raise ValueError(f"Best candidate source escapes artifact root: {source}")
+    if not target.is_relative_to(root):
+        raise ValueError(f"Best candidate alias escapes artifact root: {target}")
+    if target.exists():
+        if target.is_symlink() or not target.is_dir():
+            raise ValueError(f"Refusing to replace non-directory best alias: {target}")
+        shutil.rmtree(target)
+    shutil.copytree(source, target)
 
 
 def _build_markdown_leaderboard(summary: dict[str, Any]) -> str:

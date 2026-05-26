@@ -52,6 +52,9 @@ def build_parser() -> argparse.ArgumentParser:
     inspect_parser = subparsers.add_parser("inspect-runtime")
     inspect_parser.add_argument("--artifact-dir", required=True)
 
+    release_parser = subparsers.add_parser("check-release")
+    release_parser.add_argument("--summary", default="reports/release/summary.json")
+
     return parser
 
 
@@ -78,6 +81,16 @@ def main() -> None:
         labels = dataset["label"]
         report = evaluate(bundle, (features, labels), split_name="external")
         print(json.dumps(report.to_dict(), indent=2))
+        return
+
+    if args.command == "check-release":
+        from ids_project.quality import evaluate_release_summary
+
+        summary = json.loads(Path(args.summary).read_text(encoding="utf-8"))
+        result = evaluate_release_summary(summary)
+        if not result.passed:
+            raise SystemExit("\n".join(result.failures))
+        print(json.dumps({"release_ready": True}, indent=2))
         return
 
     from ids_project.runtime import describe_runtime, load_runtime, predict_batch, predict_one
@@ -107,10 +120,10 @@ def build_training_config(args: argparse.Namespace):
             artifact_dir=Path(args.artifact_dir),
             report_dir=Path(args.report_dir),
             profile_name=args.profile,
-            use_gpu=args.gpu,
+            use_gpu=args.gpu or args.require_gpu,
             gpu_backend=args.gpu_backend,
             require_gpu=args.require_gpu,
-            allow_gpu_fallback=not args.no_gpu_fallback,
+            allow_gpu_fallback=False if args.require_gpu else not args.no_gpu_fallback,
             gpu_platform_id=args.gpu_platform_id,
             gpu_device_id=args.gpu_device_id,
             progress_bar=not args.no_progress,

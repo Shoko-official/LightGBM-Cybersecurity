@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import StratifiedShuffleSplit
 
 from ids_project.config import TrainingConfig
 from ids_project.contracts import CATEGORICAL_COLUMNS, DatasetSummary, NSL_KDD_COLUMNS, SplitData
@@ -50,20 +51,17 @@ def build_split(frame: pd.DataFrame, config: TrainingConfig) -> SplitData:
 
 
 def _stratified_split_indices(labels: pd.Series, test_size: float, random_state: int) -> tuple[np.ndarray, np.ndarray]:
-    rng = np.random.default_rng(random_state)
     values = labels.to_numpy()
-    train_idx = []
-    test_idx = []
+    if not 0.0 < test_size < 1.0:
+        raise ValueError("test_size must be in range (0.0, 1.0).")
+    counts = labels.value_counts()
+    too_small = counts[counts < 2]
+    if not too_small.empty:
+        classes = ", ".join(str(label) for label in too_small.index)
+        raise ValueError(f"Cannot stratify classes with fewer than 2 rows: {classes}.")
 
-    for label in pd.unique(values):
-        class_idx = np.flatnonzero(values == label)
-        shuffled = rng.permutation(class_idx)
-        test_count = max(1, int(round(len(shuffled) * test_size)))
-        if test_count >= len(shuffled):
-            test_count = len(shuffled) - 1
-        test_idx.extend(shuffled[:test_count].tolist())
-        train_idx.extend(shuffled[test_count:].tolist())
-
+    splitter = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
+    train_idx, test_idx = next(splitter.split(np.zeros(len(values)), values))
     return np.array(sorted(train_idx), dtype=int), np.array(sorted(test_idx), dtype=int)
 
 

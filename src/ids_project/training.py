@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import importlib.metadata
+import platform
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -55,14 +60,19 @@ def train(config: TrainingConfig) -> TrainingResult:
         top_k_features=config.report_top_features,
         precision_digits=config.report_precision_digits,
         original_labels=split.labels_validation,
+        label_mapping=preprocessing.label_encoder.mapping,
     )
     progress.update(10)
 
     progress.set_description("Training main model")
     classes = list(preprocessing.label_encoder.classes_)
     metadata = dict(config.extra_metadata)
+    metadata["artifact_schema_version"] = 2
     metadata["classes"] = classes
     metadata["profile_name"] = config.profile_name
+    metadata["python_version"] = platform.python_version()
+    metadata["dependency_versions"] = _dependency_versions()
+    metadata["dataset_sha256"] = _sha256_file(config.paths.dataset_path)
     if config.use_gpu:
         metadata["gpu_backend"] = resolve_gpu_backend(config.gpu_backend)
     model_spec = build_lightgbm(config, classes)
@@ -110,13 +120,18 @@ def train(config: TrainingConfig) -> TrainingResult:
         top_k_features=config.report_top_features,
         precision_digits=config.report_precision_digits,
         original_labels=split.labels_validation,
+        label_mapping=preprocessing.label_encoder.mapping,
     )
-    report_path = save_report(validation_report, config.paths.report_dir, "validation_report.json")
+    report_path = save_report(
+        validation_report,
+        config.paths.report_dir,
+        "validation_report.json",
+    )
 
     union = preprocessing.pipeline.named_steps["union"]
     manifest = ArtifactManifest(
         model_name=model_spec.name,
-        dataset_path=str(config.paths.dataset_path),
+        dataset_path=_portable_path(config.paths.dataset_path),
         target_column=config.target_column,
         threshold=config.threshold,
         random_state=config.random_state,
@@ -129,12 +144,17 @@ def train(config: TrainingConfig) -> TrainingResult:
         files={
             "model": "model.joblib",
             "preprocessor": "preprocessor.joblib",
-            "report": str(report_path),
+            "report": _portable_path(report_path),
             "manifest": "manifest.json",
         },
         metadata={"notes": config.notes, **metadata},
     )
-    _, _, manifest_path = save_runtime_bundle(config.paths.artifact_dir, preprocessing, model, manifest)
+    _, _, manifest_path = save_runtime_bundle(
+        config.paths.artifact_dir,
+        preprocessing,
+        model,
+        manifest,
+    )
     progress.update(10)
     progress.close()
 
@@ -152,12 +172,45 @@ def train(config: TrainingConfig) -> TrainingResult:
 def _metrics_to_dict(metrics: ModelMetrics) -> dict[str, float]:
     return {
         "accuracy": metrics.accuracy,
+        "balanced_accuracy": metrics.balanced_accuracy,
         "precision": metrics.precision,
         "recall": metrics.recall,
         "f1_score": metrics.f1_score,
         "roc_auc": metrics.roc_auc,
         "average_precision": metrics.average_precision,
+        "attack_precision": metrics.attack_precision,
+        "attack_recall": metrics.attack_recall,
+        "attack_f1_score": metrics.attack_f1_score,
+        "attack_roc_auc": metrics.attack_roc_auc,
+        "attack_average_precision": metrics.attack_average_precision,
     }
+
+
+def _dependency_versions() -> dict[str, str]:
+    versions: dict[str, str] = {}
+    for package_name in ("numpy", "pandas", "scikit-learn", "imbalanced-learn", "lightgbm"):
+        try:
+            versions[package_name] = importlib.metadata.version(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            versions[package_name] = "not-installed"
+    return versions
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _portable_path(path: Path) -> str:
+    resolved = path.expanduser().resolve()
+    workspace_root = Path.cwd().resolve()
+    try:
+        return str(resolved.relative_to(workspace_root))
+    except ValueError:
+        return str(resolved)
 
 
 def _fit_model(
@@ -201,14 +254,14 @@ def _balance_dataset(
 
     if config.use_smote:
         try:
-            from imblearn.over_sampling import SMOTE
+            from imblearn.over_sampling import RandomOverSampler
 
-            sampler = SMOTE(random_state=config.random_state)
+            sampler = RandomOverSampler(random_state=config.random_state)
             return sampler.fit_resample(features, labels_array)
         except ImportError:
-            print("imbalanced-learn is not installed. Falling back to random oversampling.")
+            print("imbalanced-learn is not installed. Falling back to local random oversampling.")
         except ValueError as exc:
-            print(f"SMOTE could not be applied, falling back to random oversampling: {exc}")
+            print(f"Random oversampling could not be applied, falling back to local sampling: {exc}")
 
     rng = np.random.default_rng(config.random_state)
     unique_labels, counts = np.unique(labels_array, return_counts=True)
@@ -219,7 +272,7 @@ def _balance_dataset(
     for label, count in zip(unique_labels, counts):
         if count >= max_count:
             continue
-        target_count = int(count + (max_count - count) * 0.5)
+        target_count = max_count
         extra_needed = target_count - int(count)
         if extra_needed <= 0:
             continue
