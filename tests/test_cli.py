@@ -65,6 +65,24 @@ def test_build_training_config_maps_train_arguments():
     assert config.custom_class_weights == {"probe": 3.5}
 
 
+def test_build_training_config_require_gpu_disables_fallback():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "train",
+            "--dataset",
+            "data/raw/nsl_kdd.csv",
+            "--require-gpu",
+        ]
+    )
+
+    config = build_training_config(args)
+
+    assert config.use_gpu is True
+    assert config.require_gpu is True
+    assert config.allow_gpu_fallback is False
+
+
 def test_build_training_config_uses_default_class_weights():
     parser = build_parser()
     args = parser.parse_args(
@@ -145,3 +163,17 @@ def test_cli_parser_accepts_runtime_inspection():
 
     assert args.command == "inspect-runtime"
     assert args.artifact_dir == "artifacts/latest"
+
+
+def test_cli_parser_accepts_release_check():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "check-release",
+            "--summary",
+            "reports/release/summary.json",
+        ]
+    )
+
+    assert args.command == "check-release"
+    assert args.summary == "reports/release/summary.json"
