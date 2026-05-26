@@ -121,11 +121,17 @@ class SplitData:
 @dataclass(slots=True)
 class ModelMetrics:
     accuracy: float
+    balanced_accuracy: float
     precision: float
     recall: float
     f1_score: float
     roc_auc: float
     average_precision: float
+    attack_precision: float = 0.0
+    attack_recall: float = 0.0
+    attack_f1_score: float = 0.0
+    attack_roc_auc: float = 0.0
+    attack_average_precision: float = 0.0
 
 
 @dataclass(slots=True)
@@ -150,6 +156,7 @@ class EvaluationReport:
     classification_report: dict[str, dict[str, float]]
     top_features: list[dict[str, float]]
     split_name: str
+    class_labels: list[str] = field(default_factory=list)
     attack_category_recall: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
+    balanced_accuracy_score,
     classification_report,
     confusion_matrix,
     f1_score,
@@ -16,9 +17,11 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
+from sklearn.preprocessing import label_binarize
 
 from ids_project.artifacts import ensure_directory
 from ids_project.contracts import EvaluationReport, ModelMetrics, RuntimeBundle
+from ids_project.decision import apply_attack_threshold, model_class_indices
 
 
 def build_evaluation_report(
@@ -32,6 +35,8 @@ def build_evaluation_report(
     top_k_features: int,
     precision_digits: int,
     original_labels: pd.Series | None = None,
+    label_mapping: dict[str, int] | None = None,
+    normal_label: str = "normal",
 ) -> EvaluationReport:
     if isinstance(features, np.ndarray) and len(feature_names) == features.shape[1]:
         features_df = pd.DataFrame(features, columns=feature_names)
@@ -40,34 +45,67 @@ def build_evaluation_report(
         probabilities = model.predict_proba(features)
 
     label_values = np.asarray(labels)
-    predictions = np.argmax(probabilities, axis=1)
-    is_binary = probabilities.shape[1] == 2 and len(np.unique(label_values)) == 2
-    if is_binary:
-        positive_scores = probabilities[:, 1]
-        roc_auc = float(roc_auc_score(label_values, positive_scores))
-        average_precision = float(average_precision_score(label_values, positive_scores))
-    else:
-        roc_auc = float(
-            roc_auc_score(
-                label_values,
-                probabilities,
-                multi_class="ovr",
-                average="macro",
-                labels=list(range(probabilities.shape[1])),
-            )
-        )
-        average_precision = 0.0
+    class_indices = model_class_indices(model, probabilities.shape[1])
+    normal_index = _normal_index(label_mapping, normal_label)
+    decisions = apply_attack_threshold(
+        probabilities,
+        class_indices,
+        normal_index=normal_index,
+        threshold=threshold,
+    )
+    predictions = decisions.predicted_indices
+    report_labels = _report_labels(label_values, predictions, class_indices)
+    class_labels = _label_names(report_labels, label_mapping)
+    true_attack = label_values != normal_index
+    predicted_attack = predictions != normal_index
 
     metrics = ModelMetrics(
         accuracy=float(accuracy_score(labels, predictions)),
-        precision=float(precision_score(labels, predictions, average="macro", zero_division=0)),
-        recall=float(recall_score(labels, predictions, average="macro", zero_division=0)),
-        f1_score=float(f1_score(labels, predictions, average="macro", zero_division=0)),
-        roc_auc=roc_auc,
-        average_precision=average_precision,
+        balanced_accuracy=float(balanced_accuracy_score(label_values, predictions)),
+        precision=float(
+            precision_score(
+                label_values,
+                predictions,
+                labels=report_labels,
+                average="macro",
+                zero_division=0,
+            )
+        ),
+        recall=float(
+            recall_score(
+                label_values,
+                predictions,
+                labels=report_labels,
+                average="macro",
+                zero_division=0,
+            )
+        ),
+        f1_score=float(
+            f1_score(
+                label_values,
+                predictions,
+                labels=report_labels,
+                average="macro",
+                zero_division=0,
+            )
+        ),
+        roc_auc=_macro_roc_auc(label_values, probabilities, class_indices),
+        average_precision=_macro_average_precision(label_values, probabilities, class_indices),
+        attack_precision=float(precision_score(true_attack, predicted_attack, zero_division=0)),
+        attack_recall=float(recall_score(true_attack, predicted_attack, zero_division=0)),
+        attack_f1_score=float(f1_score(true_attack, predicted_attack, zero_division=0)),
+        attack_roc_auc=_safe_binary_roc_auc(true_attack, decisions.attack_scores),
+        attack_average_precision=_safe_average_precision(true_attack, decisions.attack_scores),
     )
-    report = classification_report(labels, predictions, output_dict=True, zero_division=0)
-    matrix = confusion_matrix(labels, predictions).tolist()
+    report = classification_report(
+        label_values,
+        predictions,
+        labels=report_labels,
+        target_names=class_labels,
+        output_dict=True,
+        zero_division=0,
+    )
+    matrix = confusion_matrix(label_values, predictions, labels=report_labels).tolist()
     return EvaluationReport(
         model_name=model_name,
         threshold=threshold,
@@ -76,6 +114,7 @@ def build_evaluation_report(
         classification_report=_round_report(report, precision_digits),
         top_features=_extract_top_features(model, feature_names, top_k_features),
         split_name=split_name,
+        class_labels=class_labels,
         attack_category_recall=_calculate_category_recall(labels, predictions, original_labels),
     )
 
@@ -102,7 +141,92 @@ def evaluate(bundle: RuntimeBundle, split: tuple[Any, Any], split_name: str = "e
         top_k_features=min(15, len(bundle.manifest.feature_columns)),
         precision_digits=4,
         original_labels=labels,
+        label_mapping=bundle.manifest.label_mapping,
     )
+
+
+def _normal_index(label_mapping: dict[str, int] | None, normal_label: str) -> int:
+    if label_mapping is None:
+        return 0
+    return int(label_mapping.get(normal_label, 0))
+
+
+def _report_labels(
+    label_values: np.ndarray,
+    predictions: np.ndarray,
+    class_indices: np.ndarray,
+) -> list[int]:
+    values = set(np.asarray(label_values, dtype=int).tolist())
+    values.update(np.asarray(predictions, dtype=int).tolist())
+    values.update(np.asarray(class_indices, dtype=int).tolist())
+    return sorted(values)
+
+
+def _label_names(labels: list[int], label_mapping: dict[str, int] | None) -> list[str]:
+    if label_mapping is None:
+        return [str(label) for label in labels]
+    reverse_mapping = {value: key for key, value in label_mapping.items()}
+    return [
+        reverse_mapping.get(label, "unknown" if label == -1 else str(label))
+        for label in labels
+    ]
+
+
+def _macro_roc_auc(
+    label_values: np.ndarray,
+    probabilities: np.ndarray,
+    class_indices: np.ndarray,
+) -> float:
+    if len(class_indices) < 2:
+        return 0.0
+    if len(np.unique(label_values)) < 2:
+        return 0.0
+    try:
+        return float(
+            roc_auc_score(
+                label_values,
+                probabilities,
+                multi_class="ovr",
+                average="macro",
+                labels=class_indices.tolist(),
+            )
+        )
+    except ValueError:
+        return 0.0
+
+
+def _macro_average_precision(
+    label_values: np.ndarray,
+    probabilities: np.ndarray,
+    class_indices: np.ndarray,
+) -> float:
+    if len(class_indices) < 2:
+        return 0.0
+    y_true = label_binarize(label_values, classes=class_indices.tolist())
+    if y_true.shape[1] != probabilities.shape[1]:
+        return 0.0
+    try:
+        return float(average_precision_score(y_true, probabilities, average="macro"))
+    except ValueError:
+        return 0.0
+
+
+def _safe_binary_roc_auc(labels: np.ndarray, scores: np.ndarray) -> float:
+    if len(np.unique(labels)) < 2:
+        return 0.0
+    try:
+        return float(roc_auc_score(labels, scores))
+    except ValueError:
+        return 0.0
+
+
+def _safe_average_precision(labels: np.ndarray, scores: np.ndarray) -> float:
+    if len(np.unique(labels)) < 2:
+        return 0.0
+    try:
+        return float(average_precision_score(labels, scores))
+    except ValueError:
+        return 0.0
 
 
 def _extract_top_features(model: Any, feature_names: list[str], top_k_features: int) -> list[dict[str, float]]:

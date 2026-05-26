@@ -4,6 +4,7 @@ import pandas as pd
 
 from ids_project.artifacts import load_runtime_bundle
 from ids_project.contracts import BatchPredictionResult, PredictionResult, RuntimeBundle
+from ids_project.decision import apply_attack_threshold, model_class_indices
 from ids_project.preprocessing import transform_features
 
 
@@ -15,13 +16,14 @@ def predict_one(bundle: RuntimeBundle, payload: dict[str, object]) -> Prediction
     frame = pd.DataFrame([payload])
     transformed = transform_features(frame, bundle.preprocessor)
     transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
-    probabilities = bundle.model.predict_proba(transformed_frame)[0]
-    predicted_index = int(probabilities.argmax())
+    probabilities = bundle.model.predict_proba(transformed_frame)
+    decisions = _decide(bundle, probabilities)
+    predicted_index = int(decisions.predicted_indices[0])
     category = _resolve_category(bundle, predicted_index)
     return PredictionResult(
         label="normal" if category == "normal" else "attack",
         category=category,
-        score=float(probabilities[predicted_index]),
+        score=float(decisions.class_confidences[0]),
         threshold=bundle.manifest.threshold,
     )
 
@@ -33,14 +35,15 @@ def predict_batch(bundle: RuntimeBundle, payloads: list[dict[str, object]]) -> B
     transformed = transform_features(frame, bundle.preprocessor)
     transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
     predictions: list[PredictionResult] = []
-    for row in bundle.model.predict_proba(transformed_frame):
-        predicted_index = int(row.argmax())
+    probabilities = bundle.model.predict_proba(transformed_frame)
+    decisions = _decide(bundle, probabilities)
+    for predicted_index, confidence in zip(decisions.predicted_indices, decisions.class_confidences):
         category = _resolve_category(bundle, predicted_index)
         predictions.append(
             PredictionResult(
                 label="normal" if category == "normal" else "attack",
                 category=category,
-                score=float(row[predicted_index]),
+                score=float(confidence),
                 threshold=bundle.manifest.threshold,
             )
         )
@@ -65,3 +68,14 @@ def describe_runtime(bundle: RuntimeBundle) -> dict[str, object]:
 def _resolve_category(bundle: RuntimeBundle, predicted_index: int) -> str:
     reverse_mapping = {value: key for key, value in bundle.manifest.label_mapping.items()}
     return reverse_mapping.get(predicted_index, "unknown")
+
+
+def _decide(bundle: RuntimeBundle, probabilities):
+    class_indices = model_class_indices(bundle.model, probabilities.shape[1])
+    normal_index = int(bundle.manifest.label_mapping.get("normal", 0))
+    return apply_attack_threshold(
+        probabilities,
+        class_indices,
+        normal_index=normal_index,
+        threshold=bundle.manifest.threshold,
+    )
