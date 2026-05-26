@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pandas as pd
 import pytest
 
 from ids_project.config import TrainingConfig
@@ -49,3 +50,14 @@ def test_build_split_is_stratified(sample_dataset_path):
     assert set(split.labels_train.unique()) == expected_labels
     assert set(split.labels_validation.unique()) == expected_labels
     assert set(split.labels_test.unique()) == expected_labels
+
+
+def test_build_split_rejects_singleton_classes(sample_dataset_frame):
+    frame = sample_dataset_frame.copy()
+    singleton_label = "buffer_overflow"
+    singleton_rows = frame[frame["label"] == singleton_label].head(1)
+    other_rows = frame[frame["label"] != singleton_label]
+    frame = pd.concat([other_rows, singleton_rows], ignore_index=True)
+
+    with pytest.raises(ValueError, match="fewer than 2 rows"):
+        build_split(frame.drop(columns=["difficulty"]), TrainingConfig(dataset_path="unused.csv"))

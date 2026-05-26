@@ -10,7 +10,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer, OrdinalEncoder, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
 from ids_project.config import TrainingConfig
 from ids_project.contracts import (
@@ -78,18 +78,26 @@ class CorrelationFilter(BaseEstimator, TransformerMixin):
 
 
 class AnomalyFeatureExtractor(BaseEstimator, TransformerMixin):
-    def __init__(self, contamination: float = 0.05):
+    def __init__(self, contamination: float = 0.05, random_state: int = 42):
         self.contamination = contamination
-        self.model = IsolationForest(contamination=contamination, n_jobs=1, random_state=42)
+        self.random_state = random_state
 
     def fit(self, frame, target=None) -> "AnomalyFeatureExtractor":
         values = np.asarray(frame, dtype=float)
         self.n_features_in_ = values.shape[1]
-        self.model.fit(values)
+        self.model_ = IsolationForest(
+            contamination=self.contamination,
+            n_jobs=1,
+            random_state=self.random_state,
+        )
+        self.model_.fit(values)
         return self
 
     def transform(self, frame):
-        scores = self.model.decision_function(frame).reshape(-1, 1)
+        model = getattr(self, "model_", None) or getattr(self, "model", None)
+        if model is None:
+            raise ValueError("AnomalyFeatureExtractor must be fitted before transform.")
+        scores = model.decision_function(frame).reshape(-1, 1)
         return np.hstack([frame, scores])
 
     def get_feature_names_out(self, input_features=None):
@@ -152,7 +160,7 @@ def build_preprocessor(config: TrainingConfig) -> Pipeline:
     categorical_pipeline = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("encoder", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)),
+            ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
         ]
     )
 
@@ -170,7 +178,7 @@ def build_preprocessor(config: TrainingConfig) -> Pipeline:
             ),
             ("correlation_filter", CorrelationFilter(threshold=0.98)),
             ("selector", VarianceThreshold(threshold=0.0)),
-            ("anomaly_extractor", AnomalyFeatureExtractor(contamination=0.05)),
+            ("anomaly_extractor", AnomalyFeatureExtractor(contamination=0.05, random_state=config.random_state)),
         ]
     )
 
