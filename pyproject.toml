@@ -23,9 +23,13 @@ dev = [
 lightgbm = [
     "lightgbm>=4.6.0",
 ]
+ui = [
+    "streamlit>=1.54.0,<2",
+]
 
 [project.scripts]
 ids-cli = "ids_project.cli:main"
+ids-ui = "ids_project.ui_launcher:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
