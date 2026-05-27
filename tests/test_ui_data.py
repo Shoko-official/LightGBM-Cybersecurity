@@ -122,3 +122,17 @@ def test_simulation_samples_extracts_attack_rows_from_headerless_dataset(tmp_pat
     assert len(sample) == 1
     assert sample.iloc[0]["label"] == "neptune"
     assert sample.iloc[0]["category"] == "dos"
+
+
+def test_simulation_samples_zero_max_rows_keeps_all_attack_rows(tmp_path):
+    dataset_path = tmp_path / "KDDTest+.txt"
+    dataset_path.write_text(
+        "0,tcp,http,SF,100,200,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,5,5,0.0,0.0,0.0,0.0,1.0,0.0,0.0,10,10,1.0,0.0,0.1,0.0,0.0,0.0,0.0,0.0,normal,10\n"
+        "0,tcp,private,S0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,30,1.0,1.0,0.0,0.0,0.1,0.9,0.0,255,10,0.04,0.8,0.1,0.2,1.0,1.0,0.0,0.0,neptune,10\n"
+        "0,udp,private,SF,28,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,8,0.0,0.0,0.0,0.0,1.0,0.0,0.0,20,20,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,teardrop,10\n",
+        encoding="utf-8",
+    )
+
+    sample = simulation_samples({"dataset_path": str(dataset_path)}, preferred_path=dataset_path, max_rows=0)
+
+    assert sample["label"].tolist() == ["neptune", "teardrop"]
