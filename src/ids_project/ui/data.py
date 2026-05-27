@@ -163,7 +163,7 @@ def simulation_samples(
     manifest: dict[str, Any] | None,
     *,
     preferred_path: str | Path | None = None,
-    max_rows: int = 1200,
+    max_rows: int | None = 1200,
 ) -> pd.DataFrame:
     dataset_path = Path(preferred_path) if preferred_path else None
     if dataset_path is None and manifest:
@@ -184,7 +184,7 @@ def simulation_samples(
     sample["category"] = sample["label"].map(NSL_KDD_CATEGORY_MAP).fillna("unknown")
     columns = ["label", "category", *NSL_KDD_COLUMNS]
     sample = sample[columns]
-    if len(sample) > max_rows:
+    if max_rows and len(sample) > max_rows:
         sample = sample.sample(n=max_rows, random_state=42)
     return sample.reset_index(drop=True)
 

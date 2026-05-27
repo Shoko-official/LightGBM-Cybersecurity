@@ -11,7 +11,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from ids_project.contracts import NSL_KDD_COLUMNS, NUMERIC_COLUMNS
-from ids_project.runtime import describe_runtime, load_runtime, predict_one
+from ids_project.runtime import describe_runtime, load_runtime, predict_batch, predict_one
 from ids_project.ui.data import (
     classification_frame,
     confusion_matrix_frame,
@@ -34,6 +34,19 @@ from ids_project.ui.forms import (
 )
 from ids_project.ui.simulator_html import HTML_SIMULATOR_TEMPLATE
 from ids_project.ui.style import APP_CSS
+
+SCENARIO_LABEL_CANDIDATES = {
+    "normal_http": ("normal",),
+    "normal_smtp": ("normal",),
+    "ddos_syn": ("neptune", "smurf", "apache2", "mailbomb"),
+    "nmap_scan": ("nmap", "portsweep", "mscan", "satan", "saint"),
+    "ping_death": ("pod",),
+    "teardrop": ("teardrop",),
+    "sql_injection": ("sqlattack", "phf", "warezmaster"),
+    "buffer_overflow": ("buffer_overflow", "loadmodule", "perl", "rootkit", "ps", "xterm"),
+    "ssh_bruteforce": ("guess_passwd", "snmpguess", "warezmaster"),
+    "backdoor": ("backdoor", "httptunnel", "multihop", "warezmaster"),
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -241,11 +254,11 @@ def render_analysis(sources) -> None:
             st.altair_chart(_bar_chart(top_features, "Feature", "Importance"), width="stretch")
 
 
-def _get_presets(manifest) -> dict[str, dict[str, Any]]:
+def _get_presets(manifest, runtime_bundle=None) -> dict[str, dict[str, Any]]:
     preferred_dataset = Path("data/raw/KDDTest+.txt")
-    sample = simulation_samples(manifest, preferred_path=preferred_dataset)
+    sample = simulation_samples(manifest, preferred_path=preferred_dataset, max_rows=0)
     if sample.empty:
-        sample = simulation_samples(manifest)
+        sample = simulation_samples(manifest, max_rows=0)
 
     presets: dict[str, dict[str, Any]] = {
         "normal_http": {
@@ -418,20 +431,57 @@ def _get_presets(manifest) -> dict[str, dict[str, Any]]:
     }
 
     if not sample.empty:
-        for category in ("normal", "dos", "probe", "u2r", "r2l"):
-            category_rows = sample[sample["category"] == category]
-            if category_rows.empty:
-                continue
-            row = category_rows.iloc[0].to_dict()
-            for preset in presets.values():
-                if preset["category"] == category:
-                    for key, value in row.items():
-                        if key not in {"name", "desc"}:
-                            preset[key] = value
+        _hydrate_presets_from_validation(presets, sample, runtime_bundle)
 
     for key, preset in presets.items():
         preset["preset_key"] = key
     return presets
+
+
+def _hydrate_presets_from_validation(
+    presets: dict[str, dict[str, Any]],
+    sample: pd.DataFrame,
+    runtime_bundle=None,
+) -> None:
+    for scenario_key, label_candidates in SCENARIO_LABEL_CANDIDATES.items():
+        preset = presets.get(scenario_key)
+        if preset is None:
+            continue
+
+        row = _select_validation_row(sample, label_candidates, runtime_bundle)
+        if row is None:
+            continue
+
+        for field in (*NSL_KDD_COLUMNS, "label", "category"):
+            if field in row:
+                preset[field] = row[field]
+        preset["validation_label"] = row.get("label", preset.get("label", "unknown"))
+        preset["validation_category"] = row.get("category", preset.get("category", "unknown"))
+
+
+def _select_validation_row(sample: pd.DataFrame, label_candidates: tuple[str, ...], runtime_bundle=None):
+    fallback = None
+    for label in label_candidates:
+        rows = sample[sample["label"] == label]
+        if rows.empty:
+            continue
+        if fallback is None:
+            fallback = rows.iloc[0].to_dict()
+
+        if runtime_bundle is None:
+            return fallback
+
+        limited_rows = rows.head(400)
+        payloads = [
+            build_payload({field: row[field] for field in NSL_KDD_COLUMNS})
+            for _, row in limited_rows.iterrows()
+        ]
+        predictions = predict_batch(runtime_bundle, payloads).predictions
+        for index, prediction in enumerate(predictions):
+            if prediction.label != "normal":
+                return limited_rows.iloc[index].to_dict()
+
+    return fallback
 
 
 def _render_interactive_simulator(
@@ -471,7 +521,8 @@ def render_tester(sources) -> None:
         st.info("Les artefacts locaux sont absents. Le formulaire reste visible, mais la prediction est desactivee.")
         return
 
-    presets = _get_presets(sources.manifest)
+    runtime_bundle = _load_runtime(str(sources.artifact_dir))
+    presets = _get_presets(sources.manifest, runtime_bundle)
     scenario_groups = {
         "Flux legitimes": ["normal_http", "normal_smtp"],
         "Attaques reseau": ["ddos_syn", "teardrop", "nmap_scan", "ping_death"],
@@ -583,6 +634,7 @@ def _render_scenario_summary(preset: dict[str, Any]) -> None:
             {"Signal": "protocol_type", "Valeur": str(preset.get("protocol_type", "tcp"))},
             {"Signal": "service", "Valeur": str(preset.get("service", "http"))},
             {"Signal": "flag", "Valeur": str(preset.get("flag", "SF"))},
+            {"Signal": "label_validation", "Valeur": str(preset.get("validation_label", preset.get("label", "unknown")))},
             {"Signal": "src_bytes", "Valeur": str(preset.get("src_bytes", 0))},
             {"Signal": "dst_bytes", "Valeur": str(preset.get("dst_bytes", 0))},
             {"Signal": "count", "Valeur": str(preset.get("count", 0))},
@@ -623,6 +675,7 @@ def _render_simulation_result(sources, payload: dict[str, Any]) -> None:
     details = pd.DataFrame(
         [
             {"Etape": "Type de flux", "Valeur": str(payload.get("name", "Flux manuel"))},
+            {"Etape": "Label validation", "Valeur": str(payload.get("validation_label", payload.get("label", "unknown")))},
             {"Etape": "Categorie predite", "Valeur": result.category},
             {"Etape": "Label ML", "Valeur": result.label},
             {"Etape": "Methode", "Valeur": detection_method},
