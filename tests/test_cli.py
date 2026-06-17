@@ -96,8 +96,9 @@ def test_build_training_config_uses_production_profile_defaults():
     config = build_training_config(args)
 
     assert config.profile_name == PRODUCTION_PROFILE_NAME
-    assert config.custom_class_weights is None
-    assert config.use_smote is False
+    assert isinstance(config.custom_class_weights, dict)
+    assert config.custom_class_weights["u2r"] == 60.0
+    assert config.use_smote is True
     assert config.threshold == 0.40
 
 

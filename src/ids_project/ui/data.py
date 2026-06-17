@@ -47,9 +47,23 @@ def load_dashboard_sources(
 ) -> DashboardSources:
     artifact_path = Path(artifact_dir)
     manifest_path = artifact_path / "manifest.json"
+
+    # Prefer the external report; fall back to the latest validation report
+    # produced by training so the dashboard always shows current metrics.
+    external_path = Path(external_report_path)
+    if not external_path.exists():
+        fallback_candidates = [
+            artifact_path.parent / "latest" / "validation_report.json",
+            Path("reports/latest/validation_report.json"),
+        ]
+        for candidate in fallback_candidates:
+            if candidate.exists():
+                external_path = candidate
+                break
+
     return DashboardSources(
         release_summary=load_optional_json(release_summary_path),
-        external_report=load_optional_json(external_report_path),
+        external_report=load_optional_json(external_path),
         manifest=load_optional_json(manifest_path) if manifest_path.exists() else None,
         artifact_dir=artifact_path,
     )
@@ -78,19 +92,6 @@ def release_status(summary: dict[str, Any]) -> tuple[bool, list[str]]:
     return result.passed, result.failures
 
 
-def kpi_cards(summary: dict[str, Any]) -> list[dict[str, Any]]:
-    model_summary = selected_model_summary(summary)
-    metrics = model_summary.get("metrics", {})
-    rare_class_f1 = model_summary.get("rare_class_f1", {})
-    return [
-        _kpi("Accuracy", metrics.get("accuracy")),
-        _kpi("Macro F1", metrics.get("f1_score")),
-        _kpi("Recall attaque", metrics.get("attack_recall", metrics.get("recall"))),
-        _kpi("R2L F1", rare_class_f1.get("r2l")),
-        _kpi("U2R F1", rare_class_f1.get("u2r")),
-    ]
-
-
 def class_labels(report: dict[str, Any], manifest: dict[str, Any] | None = None) -> list[str]:
     labels = report.get("class_labels")
     if isinstance(labels, list) and labels:
@@ -100,6 +101,38 @@ def class_labels(report: dict[str, Any], manifest: dict[str, Any] | None = None)
         reverse = {int(index): label for label, index in mapping.items()}
         return [reverse[index] for index in sorted(reverse)]
     return list(DEFAULT_CLASS_LABELS)
+
+
+def kpi_cards(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract KPI values from a validation or external report.
+
+    Works whether classification_report keys are label strings (e.g. "r2l")
+    or numeric indices (e.g. "3"). Rare class F1 scores for R2L and U2R are
+    extracted from the classification_report if present.
+    """
+    metrics = summary.get("metrics", {})
+    classification = summary.get("classification_report", {})
+    labels = class_labels(summary)
+    rare_f1: dict[str, float] = {}
+    for rare_label in ("r2l", "u2r"):
+        # First try keying by the label name directly (new-style report)
+        entry = classification.get(rare_label)
+        if not isinstance(entry, dict) or "f1-score" not in entry:
+            # Fallback: key by numeric index (old-style report)
+            try:
+                idx = labels.index(rare_label)
+            except ValueError:
+                continue
+            entry = classification.get(str(idx), {})
+        if isinstance(entry, dict) and "f1-score" in entry:
+            rare_f1[rare_label] = float(entry["f1-score"])
+    return [
+        _kpi("Accuracy", metrics.get("accuracy")),
+        _kpi("Macro F1", metrics.get("f1_score")),
+        _kpi("Recall attaque", metrics.get("attack_recall", metrics.get("recall"))),
+        _kpi("R2L F1", rare_f1.get("r2l")),
+        _kpi("U2R F1", rare_f1.get("u2r")),
+    ]
 
 
 def classification_frame(report: dict[str, Any], manifest: dict[str, Any] | None = None) -> pd.DataFrame:

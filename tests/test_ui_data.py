@@ -56,14 +56,18 @@ def test_release_status_uses_quality_gates():
 
 
 def test_kpi_cards_extract_security_metrics():
-    summary = {
-        "default_prod": {
-            "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
-            "rare_class_f1": {"r2l": 0.35, "u2r": 0.12},
-        }
+    # kpi_cards now expects the external report format: top-level "metrics" and
+    # "classification_report" with label-name keys for rare classes.
+    report = {
+        "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
+        "classification_report": {
+            "r2l": {"precision": 0.5, "recall": 0.4, "f1-score": 0.35, "support": 100.0},
+            "u2r": {"precision": 0.2, "recall": 0.1, "f1-score": 0.12, "support": 20.0},
+        },
+        "class_labels": ["normal", "dos", "probe", "r2l", "u2r"],
     }
 
-    cards = kpi_cards(summary)
+    cards = kpi_cards(report)
 
     assert [card["label"] for card in cards] == [
         "Accuracy",
@@ -73,6 +77,8 @@ def test_kpi_cards_extract_security_metrics():
         "U2R F1",
     ]
     assert cards[0]["value"] == "0.780"
+    assert cards[3]["value"] == "0.350"  # R2L F1
+    assert cards[4]["value"] == "0.120"  # U2R F1
 
 
 def test_report_frames_extract_confusion_metrics_and_features():

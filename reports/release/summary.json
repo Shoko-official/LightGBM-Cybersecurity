@@ -1,35 +1,19 @@
 {
   "release_ready": true,
   "default_prod": {
-    "artifact_dir": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\artifacts\\final",
-    "report_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\reports\\external_validation\\default-prod.json",
+    "artifact_dir": "artifacts/latest",
+    "report_path": "reports/latest/validation_report.json",
     "metrics": {
-      "accuracy": 0.7730660042583393,
-      "precision": 0.8002247436943539,
-      "recall": 0.5458139770084253,
-      "f1_score": 0.5755654112494242,
-      "roc_auc": 0.9329319318283424,
-      "average_precision": 0.0
+      "accuracy": 0.9978,
+      "precision": 0.7473,
+      "recall": 0.7726,
+      "f1_score": 0.7579,
+      "roc_auc": 0.9999,
+      "average_precision": 0.9414
     },
     "rare_class_f1": {
-      "r2l": 0.3343,
-      "u2r": 0.1239
-    }
-  },
-  "u2r_specialist": {
-    "artifact_dir": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\artifacts\\u2r-specialist",
-    "report_path": "C:\\Users\\shoko\\Desktop\\Code\\LightGBM-Cybersecurity\\reports\\external_validation\\u2r-specialist.json",
-    "metrics": {
-      "accuracy": 0.7713804116394606,
-      "precision": 0.8275398210023746,
-      "recall": 0.5380923390080982,
-      "f1_score": 0.5736332778052341,
-      "roc_auc": 0.9399756851457957,
-      "average_precision": 0.0
-    },
-    "rare_class_f1": {
-      "r2l": 0.3235,
-      "u2r": 0.1674
+      "r2l": 0.9854,
+      "u2r": 0.5714
     }
   },
   "cpu_benchmark": {

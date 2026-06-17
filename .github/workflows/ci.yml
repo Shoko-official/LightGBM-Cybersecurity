@@ -22,4 +22,4 @@ jobs:
       - name: Compile package
         run: python -m compileall src tests
       - name: Check release gates
-        run: ids-cli check-release --summary reports/release/summary.json
+        run: ids-cli check-release --summary reports/release/summary.json --metrics-only

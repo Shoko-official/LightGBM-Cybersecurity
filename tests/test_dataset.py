@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -52,12 +54,19 @@ def test_build_split_is_stratified(sample_dataset_path):
     assert set(split.labels_test.unique()) == expected_labels
 
 
-def test_build_split_rejects_singleton_classes(sample_dataset_frame):
+def test_build_split_falls_back_for_singleton_classes(sample_dataset_frame):
     frame = sample_dataset_frame.copy()
     singleton_label = "buffer_overflow"
     singleton_rows = frame[frame["label"] == singleton_label].head(1)
     other_rows = frame[frame["label"] != singleton_label]
     frame = pd.concat([other_rows, singleton_rows], ignore_index=True)
 
-    with pytest.raises(ValueError, match="fewer than 2 rows"):
-        build_split(frame.drop(columns=["difficulty"]), TrainingConfig(dataset_path="unused.csv"))
+    import warnings
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        split = build_split(frame.drop(columns=["difficulty"]), TrainingConfig(dataset_path=Path("unused.csv")))
+
+    warning_messages = [str(w.message) for w in caught]
+    assert any("non\u2011stratified" in m or "non-stratified" in m or "<2 rows" in m for m in warning_messages)
+    # Split should still succeed
+    assert len(split.labels_train) > 0

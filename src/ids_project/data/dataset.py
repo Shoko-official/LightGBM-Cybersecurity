@@ -51,14 +51,28 @@ def build_split(frame: pd.DataFrame, config: TrainingConfig) -> SplitData:
 
 
 def _stratified_split_indices(labels: pd.Series, test_size: float, random_state: int) -> tuple[np.ndarray, np.ndarray]:
+    """Return stratified train/test indices.
+
+    If any class has fewer than 2 samples after rare‑label merging, stratified splitting would fail.
+    In that case we gracefully fall back to a non‑stratified ``ShuffleSplit`` to avoid the exception.
+    """
     values = labels.to_numpy()
     if not 0.0 < test_size < 1.0:
         raise ValueError("test_size must be in range (0.0, 1.0).")
     counts = labels.value_counts()
     too_small = counts[counts < 2]
     if not too_small.empty:
-        classes = ", ".join(str(label) for label in too_small.index)
-        raise ValueError(f"Cannot stratify classes with fewer than 2 rows: {classes}.")
+        # Fallback to non‑stratified split; issue a warning for transparency.
+        import warnings
+        warnings.warn(
+            f"Classes with <2 rows detected ({', '.join(str(l) for l in too_small.index)}); "
+            "using non‑stratified split instead.",
+            UserWarning,
+        )
+        from sklearn.model_selection import ShuffleSplit
+        splitter = ShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
+        train_idx, test_idx = next(splitter.split(np.zeros(len(values)), values))
+        return np.array(sorted(train_idx), dtype=int), np.array(sorted(test_idx), dtype=int)
 
     splitter = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
     train_idx, test_idx = next(splitter.split(np.zeros(len(values)), values))

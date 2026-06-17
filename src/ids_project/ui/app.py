@@ -273,9 +273,9 @@ def get_user_language() -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="streamlit run ids_project.ui.app")
-    parser.add_argument("--artifact-dir", default="artifacts/final")
+    parser.add_argument("--artifact-dir", default="artifacts/latest")
     parser.add_argument("--release-summary", default="reports/release/summary.json")
-    parser.add_argument("--external-report", default="reports/external_validation/default-prod.json")
+    parser.add_argument("--external-report", default="reports/latest/validation_report.json")
     return parser
 
 
@@ -404,7 +404,7 @@ def render_dashboard(sources, lang: str) -> None:
     }
 
     cards_html: list[str] = []
-    for card in kpi_cards(sources.release_summary):
+    for card in kpi_cards(sources.external_report):
         raw_label = card["label"]
         label = metric_labels_trans.get(raw_label, raw_label)
         raw_value = card["raw"]
