@@ -19,17 +19,17 @@ DEFAULT_CLASS_WEIGHTS = {
 
 TRAINING_PROFILES: dict[str, dict[str, Any]] = {
     PRODUCTION_PROFILE_NAME: {
-        "learning_rate": 0.04,
-        "num_leaves": 7,
-        "max_depth": 5,
-        "n_estimators": 320,
-        "min_child_samples": 80,
-        "feature_fraction": 0.75,
-        "bagging_fraction": 0.75,
+        "learning_rate": 0.025,
+        "num_leaves": 3,
+        "max_depth": 3,
+        "n_estimators": 520,
+        "min_child_samples": 220,
+        "feature_fraction": 0.55,
+        "bagging_fraction": 0.65,
         "bagging_freq": 1,
-        "lambda_l1": 0.8,
-        "lambda_l2": 3.0,
-        "threshold": 0.30,
+        "lambda_l1": 2.0,
+        "lambda_l2": 8.0,
+        "threshold": 0.40,
         "use_smote": False,
         "custom_class_weights": None,
     },
@@ -111,6 +111,7 @@ class TrainingConfig:
     early_stopping_rounds: int = 30
     categorical_min_frequency: int = 2
     numeric_clip_quantile: float = 0.995
+    use_anomaly_feature: bool = True
     target_column: str = "label"
     difficulty_column: str = "difficulty"
     report_top_features: int = 15
@@ -163,6 +164,8 @@ class TrainingConfig:
             raise ValueError("report_top_features must be greater than 0.")
         if self.report_precision_digits < 0:
             raise ValueError("report_precision_digits must be non-negative.")
+        if self.categorical_min_frequency < 1:
+            raise ValueError("categorical_min_frequency must be greater than 0.")
         if self.gpu_platform_id < 0 or self.gpu_device_id < 0:
             raise ValueError("GPU platform and device ids must be non-negative.")
         if self.require_gpu and not self.use_gpu:

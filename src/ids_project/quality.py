@@ -8,11 +8,13 @@ from typing import Any
 
 DEFAULT_RELEASE_THRESHOLDS = {
     "accuracy": 0.80,
-    "macro_f1": 0.60,
-    "macro_recall": 0.58,
-    "r2l_f1": 0.35,
-    "u2r_f1": 0.20,
+    "macro_f1": 0.68,
+    "macro_recall": 0.68,
+    "r2l_f1": 0.40,
+    "u2r_f1": 0.45,
 }
+
+DEFAULT_MAX_GENERALIZATION_GAP = 0.05
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +30,7 @@ def evaluate_release_summary(
     require_evidence: bool = False,
     workspace_root: str | Path | None = None,
     min_external_support: int = 1000,
+    max_generalization_gap: float = DEFAULT_MAX_GENERALIZATION_GAP,
 ) -> ReleaseGateResult:
     active_thresholds = thresholds or DEFAULT_RELEASE_THRESHOLDS
     failures: list[str] = []
@@ -40,11 +43,11 @@ def evaluate_release_summary(
         evaluated += 1
         failures.extend(_evaluate_model_payload(model_key, payload, active_thresholds))
         if require_evidence:
-            failures.extend(_evaluate_model_evidence(model_key, payload, root, min_external_support))
+            failures.extend(_evaluate_model_evidence(model_key, payload, root, min_external_support, max_generalization_gap))
     if evaluated == 0:
         failures.extend(_evaluate_model_payload("summary", summary, active_thresholds))
         if require_evidence:
-            failures.extend(_evaluate_model_evidence("summary", summary, root, min_external_support))
+            failures.extend(_evaluate_model_evidence("summary", summary, root, min_external_support, max_generalization_gap))
     if require_evidence and summary.get("release_ready") is not True:
         failures.append("release_ready must be true for commercial release evidence")
     return ReleaseGateResult(passed=not failures, failures=failures)
@@ -87,6 +90,7 @@ def _evaluate_model_evidence(
     payload: dict[str, Any],
     workspace_root: Path,
     min_external_support: int,
+    max_generalization_gap: float,
 ) -> list[str]:
     failures: list[str] = []
     artifact_dir, artifact_dir_failure = _evidence_path(
@@ -118,7 +122,9 @@ def _evaluate_model_evidence(
     elif not report_path.is_file():
         failures.append(f"{name}: report_path is not a file: {report_path}")
     else:
-        failures.extend(_evaluate_external_report(name, report_path, payload, min_external_support))
+        manifest_path = artifact_dir / "manifest.json" if artifact_dir is not None else None
+        manifest = _load_manifest(manifest_path) if manifest_path is not None and manifest_path.exists() else {}
+        failures.extend(_evaluate_external_report(name, report_path, payload, manifest, min_external_support, max_generalization_gap))
 
     return failures
 
@@ -180,11 +186,17 @@ def _evaluate_artifact_manifest(name: str, artifact_dir: Path, workspace_root: P
     return failures
 
 
+def _load_manifest(manifest_path: Path) -> dict[str, Any]:
+    return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+
 def _evaluate_external_report(
     name: str,
     report_path: Path,
     summary_payload: dict[str, Any],
+    manifest: dict[str, Any],
     min_external_support: int,
+    max_generalization_gap: float,
 ) -> list[str]:
     report = json.loads(report_path.read_text(encoding="utf-8"))
     failures: list[str] = []
@@ -207,6 +219,17 @@ def _evaluate_external_report(
     for key in ("attack_precision", "attack_recall", "attack_f1_score", "attack_roc_auc", "attack_average_precision"):
         if key not in report_metrics:
             failures.append(f"{name}: missing security metric {key}")
+    validation_metrics = manifest.get("validation_metrics", {})
+    validation_f1 = validation_metrics.get("f1_score")
+    external_f1 = report_metrics.get("f1_score")
+    if validation_f1 is None:
+        failures.append(f"{name}: missing validation f1_score in manifest")
+    elif external_f1 is not None:
+        gap = float(validation_f1) - float(external_f1)
+        if gap > max_generalization_gap:
+            failures.append(
+                f"{name}: generalization gap {gap:.4f} exceeds allowed {max_generalization_gap:.4f}"
+            )
     return failures
 
 

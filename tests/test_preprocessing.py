@@ -31,6 +31,26 @@ def test_preprocessing_rejects_missing_columns(sample_dataset_path):
         fit_preprocessing(features, labels, TrainingConfig(dataset_path=sample_dataset_path))
 
 
+def test_preprocessing_can_disable_anomaly_feature(sample_dataset_path):
+    dataset = load_dataset(TrainingConfig(dataset_path=sample_dataset_path))
+    features = dataset.drop(columns=["label"])
+    labels = dataset["label"]
+
+    _, _, artifacts = fit_preprocessing(
+        features,
+        labels,
+        TrainingConfig(dataset_path=sample_dataset_path, use_anomaly_feature=False),
+    )
+
+    assert "anomaly_extractor" not in artifacts.pipeline.named_steps
+    assert "unsupervised_anomaly_score" not in artifacts.feature_names
+
+
+def test_training_config_rejects_invalid_categorical_frequency(sample_dataset_path):
+    with pytest.raises(ValueError, match="categorical_min_frequency"):
+        TrainingConfig(dataset_path=sample_dataset_path, categorical_min_frequency=0)
+
+
 def test_balancing_duplicates_existing_rows_without_synthetic_values(sample_dataset_path):
     features = np.array(
         [

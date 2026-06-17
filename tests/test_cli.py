@@ -98,7 +98,7 @@ def test_build_training_config_uses_production_profile_defaults():
     assert config.profile_name == PRODUCTION_PROFILE_NAME
     assert config.custom_class_weights is None
     assert config.use_smote is False
-    assert config.threshold == 0.30
+    assert config.threshold == 0.40
 
 
 def test_build_training_config_supports_specialist_profile():
@@ -179,3 +179,4 @@ def test_cli_parser_accepts_release_check():
 
     assert args.command == "check-release"
     assert args.summary == "reports/release/summary.json"
+    assert args.max_generalization_gap == 0.05

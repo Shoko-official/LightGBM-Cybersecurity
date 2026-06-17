@@ -56,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     release_parser.add_argument("--summary", default="reports/release/summary.json")
     release_parser.add_argument("--workspace-root", default=".")
     release_parser.add_argument("--min-external-support", type=int, default=1000)
+    release_parser.add_argument("--max-generalization-gap", type=float, default=0.05)
     release_parser.add_argument(
         "--metrics-only",
         action="store_true",
@@ -99,6 +100,7 @@ def main(argv: list[str] | None = None) -> None:
             require_evidence=not args.metrics_only,
             workspace_root=Path(args.workspace_root),
             min_external_support=args.min_external_support,
+            max_generalization_gap=args.max_generalization_gap,
         )
         if not result.passed:
             raise SystemExit("\n".join(result.failures))

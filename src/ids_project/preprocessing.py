@@ -160,27 +160,36 @@ def build_preprocessor(config: TrainingConfig) -> Pipeline:
     categorical_pipeline = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+            (
+                "encoder",
+                OneHotEncoder(
+                    handle_unknown="infrequent_if_exist",
+                    min_frequency=config.categorical_min_frequency,
+                    sparse_output=False,
+                ),
+            ),
         ]
     )
 
-    return Pipeline(
-        steps=[
-            (
-                "union",
-                ColumnTransformer(
-                    transformers=[
-                        ("skewed", skewed_pipeline, SKEWED_COLUMNS),
-                        ("numeric", numeric_pipeline, REMAINING_NUMERIC_COLUMNS),
-                        ("categorical", categorical_pipeline, CATEGORICAL_COLUMNS),
-                    ]
-                ),
+    steps = [
+        (
+            "union",
+            ColumnTransformer(
+                transformers=[
+                    ("skewed", skewed_pipeline, SKEWED_COLUMNS),
+                    ("numeric", numeric_pipeline, REMAINING_NUMERIC_COLUMNS),
+                    ("categorical", categorical_pipeline, CATEGORICAL_COLUMNS),
+                ]
             ),
-            ("correlation_filter", CorrelationFilter(threshold=0.98)),
-            ("selector", VarianceThreshold(threshold=0.0)),
-            ("anomaly_extractor", AnomalyFeatureExtractor(contamination=0.05, random_state=config.random_state)),
-        ]
-    )
+        ),
+        ("correlation_filter", CorrelationFilter(threshold=0.98)),
+        ("selector", VarianceThreshold(threshold=0.0)),
+    ]
+    if config.use_anomaly_feature:
+        steps.append(
+            ("anomaly_extractor", AnomalyFeatureExtractor(contamination=0.05, random_state=config.random_state))
+        )
+    return Pipeline(steps=steps)
 
 
 def fit_preprocessing(
