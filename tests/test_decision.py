@@ -38,10 +38,11 @@ def test_evaluation_reports_multiclass_average_precision():
             [0.10, 0.80, 0.10],
             [0.05, 0.10, 0.85],
             [0.80, 0.10, 0.10],
+            [0.20, 0.40, 0.40],
         ]
     )
-    features = pd.DataFrame({"feature": [0, 1, 2, 3]})
-    labels = np.array([0, 1, 2, 0])
+    features = pd.DataFrame({"feature": [0, 1, 2, 3, 4]})
+    labels = np.array([0, 1, 2, 0, -1])
 
     report = build_evaluation_report(
         model=model,
@@ -58,4 +59,4 @@ def test_evaluation_reports_multiclass_average_precision():
 
     assert report.metrics.average_precision > 0.0
     assert report.metrics.attack_average_precision > 0.0
-    assert report.class_labels == ["normal", "dos", "probe"]
+    assert report.class_labels == ["unknown", "normal", "dos", "probe"]

@@ -29,16 +29,19 @@ html, body, [data-testid="stAppViewContainer"] {
   font-family: 'Inter', sans-serif;
   background-color: var(--m3-bg) !important;
   color: var(--m3-text) !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
 }
 
 .stApp {
   background: var(--m3-bg) !important;
   color-scheme: light !important;
+  overflow-x: hidden !important;
 }
 
-header[data-testid="stHeader"] {
-  background-color: transparent !important;
-  border-bottom: 0px !important;
+header[data-testid="stHeader"],
+[data-testid="stHeader"] {
+  display: none !important;
 }
 
 #MainMenu {
@@ -304,7 +307,48 @@ h1, h2, h3, h4, h5, h6 {
   .google-header-right {
     gap: 10px !important;
   }
+  .ids-card {
+    height: auto !important;
+  }
 }
+
+@media (max-width: 600px) {
+  .block-container {
+    padding: 1rem 1rem 2rem !important;
+  }
+  .ids-page-title {
+    font-size: 1.5rem !important;
+  }
+  .ids-subtitle {
+    font-size: 0.82rem !important;
+    margin-bottom: 1.2rem !important;
+  }
+  .ids-card {
+    padding: 1rem 1.1rem !important;
+  }
+  [data-testid="stAppViewContainer"] [data-testid="stHorizontalBlock"]:first-of-type {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    justify-content: flex-start !important;
+    padding: 8px 16px !important;
+    margin-bottom: 1.2rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important; /* Firefox */
+  }
+  [data-testid="stAppViewContainer"] [data-testid="stHorizontalBlock"]:first-of-type::-webkit-scrollbar {
+    display: none !important; /* Safari and Chrome */
+  }
+  [data-testid="stAppViewContainer"] [data-testid="stHorizontalBlock"]:first-of-type > div {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    width: auto !important;
+    min-width: fit-content !important;
+  }
+  [data-testid="stAppViewContainer"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="stButton"] button {
+    white-space: nowrap !important;
+  }
+}
+
 
 /* Tech paths box overrides - clean gray background instead of black */
 .tech-paths {

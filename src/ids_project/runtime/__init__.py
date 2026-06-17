@@ -12,41 +12,52 @@ def load_runtime(path: str) -> RuntimeBundle:
     return load_runtime_bundle(path)
 
 
-def predict_one(bundle: RuntimeBundle, payload: dict[str, object]) -> PredictionResult:
-    frame = pd.DataFrame([payload])
-    transformed = transform_features(frame, bundle.preprocessor)
-    transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
-    probabilities = bundle.model.predict_proba(transformed_frame)
-    decisions = _decide(bundle, probabilities)
-    predicted_index = int(decisions.predicted_indices[0])
-    category = _resolve_category(bundle, predicted_index)
+def _payload_to_frame(payload: dict[str, object]) -> pd.DataFrame:
+    return pd.DataFrame([payload])
+
+
+def _transform_to_model_frame(bundle: RuntimeBundle, frame: pd.DataFrame) -> pd.DataFrame:
+    features = transform_features(frame, bundle.preprocessor)
+    return pd.DataFrame(features, columns=bundle.manifest.feature_columns)
+
+
+def _result_from_decision(
+    bundle: RuntimeBundle,
+    decision,
+    index: int,
+) -> PredictionResult:
+    reverse_mapping = {v: k for k, v in bundle.manifest.label_mapping.items()}
+    normal_index = int(bundle.manifest.label_mapping.get("normal", 0))
+    predicted_index = int(decision.predicted_indices[index])
+    category = reverse_mapping.get(predicted_index, "unknown")
+    label = "normal" if predicted_index == normal_index else "attack"
+    score = float(decision.attack_scores[index])
     return PredictionResult(
-        label="normal" if category == "normal" else "attack",
+        label=label,
         category=category,
-        score=float(decisions.class_confidences[0]),
+        score=score,
         threshold=bundle.manifest.threshold,
     )
+
+
+def predict_one(bundle: RuntimeBundle, payload: dict[str, object]) -> PredictionResult:
+    frame = _payload_to_frame(payload)
+    features = _transform_to_model_frame(bundle, frame)
+    probabilities = bundle.model.predict_proba(features)
+    decision = _decide(bundle, probabilities)
+    return _result_from_decision(bundle, decision, 0)
 
 
 def predict_batch(bundle: RuntimeBundle, payloads: list[dict[str, object]]) -> BatchPredictionResult:
     if not payloads:
         raise ValueError("Prediction payload list cannot be empty.")
     frame = pd.DataFrame(payloads)
-    transformed = transform_features(frame, bundle.preprocessor)
-    transformed_frame = pd.DataFrame(transformed, columns=bundle.manifest.feature_columns)
-    predictions: list[PredictionResult] = []
-    probabilities = bundle.model.predict_proba(transformed_frame)
-    decisions = _decide(bundle, probabilities)
-    for predicted_index, confidence in zip(decisions.predicted_indices, decisions.class_confidences):
-        category = _resolve_category(bundle, predicted_index)
-        predictions.append(
-            PredictionResult(
-                label="normal" if category == "normal" else "attack",
-                category=category,
-                score=float(confidence),
-                threshold=bundle.manifest.threshold,
-            )
-        )
+    features = _transform_to_model_frame(bundle, frame)
+    probabilities = bundle.model.predict_proba(features)
+    decision = _decide(bundle, probabilities)
+    predictions = [
+        _result_from_decision(bundle, decision, i) for i in range(len(payloads))
+    ]
     return BatchPredictionResult(predictions=predictions)
 
 

@@ -16,7 +16,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     overflow: hidden;
     user-select: none;
   }
-  
+
   .stage {
     display: flex;
     justify-content: space-between;
@@ -29,7 +29,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     position: relative;
     box-sizing: border-box;
   }
-  
+
   .nodes-container {
     display: flex;
     justify-content: space-between;
@@ -39,7 +39,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     position: relative;
     z-index: 2;
   }
-  
+
   /* Material 3 Stepper Logs Container */
   .stepper-container {
     width: 39%;
@@ -54,7 +54,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     position: relative;
   }
-  
+
   .stepper-title {
     font-size: 0.78rem;
     color: #0b57d0;
@@ -65,7 +65,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     font-weight: 700;
     letter-spacing: 0.05em;
   }
-  
+
   .stepper-steps {
     flex-grow: 1;
     display: flex;
@@ -73,7 +73,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     gap: 10px;
     justify-content: center;
   }
-  
+
   .step-row {
     display: flex;
     align-items: center;
@@ -84,13 +84,13 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     transform: translateY(2px);
     transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
   }
-  
+
   .step-row.active {
     opacity: 1;
     color: #1f1f1f;
     transform: translateY(0);
   }
-  
+
   .step-icon-wrap {
     display: flex;
     align-items: center;
@@ -105,16 +105,16 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     flex-shrink: 0;
     transition: all 0.2s ease;
   }
-  
+
   .step-row.active .step-icon-wrap {
     background-color: #d3e3fd;
   }
-  
+
   .step-row.success .step-icon-wrap {
     background-color: #e8f5e9;
     color: #146c2e;
   }
-  
+
   .step-row.danger .step-icon-wrap {
     background-color: #f9dedc;
     color: #b3261e;
@@ -130,7 +130,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     height: 140px;
     justify-content: center;
   }
-  
+
   .node-icon-wrap {
     width: 60px;
     height: 60px;
@@ -146,13 +146,13 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     z-index: 3;
     position: relative;
   }
-  
+
   .node.client .node-icon-wrap {
     background-color: #e8f0fe;
     border-color: #aecbfa;
     color: #0b57d0;
   }
-  
+
   /* State animations for Google Material 3 */
   .state-normal .node.firewall .node-icon-wrap {
     background-color: #e8f5e9;
@@ -160,13 +160,13 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     color: #146c2e;
     transform: scale(1.05);
   }
-  
+
   .state-normal .node.server .node-icon-wrap {
     background-color: #e8f5e9;
     border-color: #a3cfbb;
     color: #146c2e;
   }
-  
+
   .state-blocked .node.firewall .node-icon-wrap {
     background-color: #f9dedc;
     border-color: #f5c2c7;
@@ -174,7 +174,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     transform: scale(1.05);
     animation: srv-shake 0.15s 2;
   }
-  
+
   @keyframes srv-shake {
     0%, 100% { transform: scale(1.05) translateX(0); }
     50% { transform: scale(1.05) translateX(-2px); }
@@ -191,11 +191,11 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     text-align: center;
     letter-spacing: 0.02em;
   }
-  
+
   .state-normal .node.client .node-label { color: #0b57d0; }
   .state-normal .node.firewall .node-label { color: #146c2e; }
   .state-normal .node.server .node-label { color: #146c2e; }
-  
+
   .state-blocked .node.client .node-label { color: #b3261e; }
   .state-blocked .node.firewall .node-label { color: #b3261e; }
 
@@ -203,13 +203,13 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
   .connectors-svg {
     position: absolute;
     top: 0;
-    left: 45px;
-    width: calc(58% - 90px);
+    left: 0;
+    width: 100%;
     height: 100%;
     z-index: 1;
     pointer-events: none;
   }
-  
+
   /* Packets visual */
   .packet {
     position: absolute;
@@ -229,7 +229,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     font-size: 0.48rem;
     font-weight: bold;
   }
-  
+
   /* Ripple wave for block animation */
   .ripple-shield {
     position: absolute;
@@ -239,34 +239,90 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     opacity: 0;
     pointer-events: none;
     z-index: 4;
-    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 600px) {
+    .stage {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: stretch !important;
+      height: 310px !important;
+      padding: 10px 10px !important;
+      gap: 10px !important;
+    }
+    .nodes-container {
+      width: 30% !important;
+      height: 100% !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    .stepper-container {
+      width: 67% !important;
+      height: 100% !important;
+      padding: 12px 10px !important;
+    }
+    .node {
+      width: 100% !important;
+      height: 80px !important;
+      justify-content: center !important;
+    }
+    .node-icon-wrap {
+      width: 42px !important;
+      height: 42px !important;
+    }
+    .node-icon-wrap i {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    .node-label {
+      font-size: 0.65rem !important;
+      bottom: 2px !important;
+    }
+    .step-row {
+      font-size: 0.68rem !important;
+      gap: 5px !important;
+    }
+    .step-icon-wrap {
+      width: 15px !important;
+      height: 15px !important;
+      font-size: 0.58rem !important;
+    }
+    .stepper-title {
+      font-size: 0.68rem !important;
+      margin-bottom: 6px !important;
+      padding-bottom: 4px !important;
+    }
+    .stepper-steps {
+      gap: 5px !important;
+    }
   }
 </style>
 </head>
 <body class="state-idle">
 <div class="stage" id="stage">
-  <svg class="connectors-svg">
-    <!-- Clean Google network track line -->
-    <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="#c4c7c5" stroke-width="3" id="track" />
-  </svg>
-  
   <div class="nodes-container">
+    <svg class="connectors-svg">
+      <!-- Clean Google network track line -->
+      <line x1="0" y1="0" x2="0" y2="0" stroke="#c4c7c5" stroke-width="3" id="track" />
+    </svg>
+
     <div class="node client">
       <div class="node-icon-wrap"><i data-lucide="monitor" style="width: 24px; height: 24px;"></i></div>
       <div class="node-label" id="client-label">Source</div>
     </div>
-    
+
     <div class="node firewall">
       <div class="node-icon-wrap" id="fw-icon"><i data-lucide="shield" style="width: 24px; height: 24px;"></i></div>
       <div class="node-label" id="fw-label">IDS Gateway</div>
     </div>
-    
+
     <div class="node server">
       <div class="node-icon-wrap" id="srv-icon"><i data-lucide="server" style="width: 24px; height: 24px;"></i></div>
       <div class="node-label">Serveur</div>
     </div>
   </div>
-  
+
   <div class="stepper-container">
     <div class="stepper-title">Statut d'Analyse</div>
     <div class="stepper-steps" id="stepper-steps">
@@ -298,23 +354,157 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
   const score = __SCORE__;
   const threshold = __THRESHOLD__;
   const category = "__CATEGORY__";
-  
+
   const protocol = "__PROTOCOL__";
   const service = "__SERVICE__";
   const srcBytes = "__SRC_BYTES__";
   const count = "__COUNT__";
   const scenario = "__SCENARIO__";
+  const lang = "__LANG__"; // 'en' | 'fr'
 
   const stageEl = document.body;
   const nodesContainer = document.querySelector('.nodes-container');
 
+  function getCenters() {
+    const containerRect = nodesContainer.getBoundingClientRect();
+    const clientIcon = document.querySelector('.node.client .node-icon-wrap');
+    const fwIcon = document.querySelector('.node.firewall .node-icon-wrap');
+    const serverIcon = document.querySelector('.node.server .node-icon-wrap');
+
+    if (!clientIcon || !fwIcon || !serverIcon || containerRect.width === 0) {
+      return {
+        startX: 45, fwX: 100, endX: 200, centerY: 60,
+        startY: 30, fwY: 80, endY: 130, centerX: 30
+      };
+    }
+
+    const clientRect = clientIcon.getBoundingClientRect();
+    const fwRect = fwIcon.getBoundingClientRect();
+    const serverRect = serverIcon.getBoundingClientRect();
+
+    // Horizontal coordinates
+    const startX = (clientRect.left + clientRect.right) / 2 - containerRect.left;
+    const fwX = (fwRect.left + fwRect.right) / 2 - containerRect.left;
+    const endX = (serverRect.left + serverRect.right) / 2 - containerRect.left;
+    const centerY = (fwRect.top + fwRect.bottom) / 2 - containerRect.top;
+
+    // Vertical coordinates
+    const startY = (clientRect.top + clientRect.bottom) / 2 - containerRect.top;
+    const fwY = (fwRect.top + fwRect.bottom) / 2 - containerRect.top;
+    const endY = (serverRect.top + serverRect.bottom) / 2 - containerRect.top;
+    const centerX = (clientRect.left + clientRect.right) / 2 - containerRect.left;
+
+    return { startX, fwX, endX, centerY, startY, fwY, endY, centerX };
+  }
+
+  function updateTrackLine() {
+    const centers = getCenters();
+    const track = document.getElementById('track');
+    if (!track) return;
+
+    if (window.innerWidth <= 600) {
+      track.setAttribute('x1', centers.centerX);
+      track.setAttribute('x2', centers.centerX);
+      track.setAttribute('y1', centers.startY);
+      track.setAttribute('y2', centers.endY);
+    } else {
+      track.setAttribute('x1', centers.startX);
+      track.setAttribute('x2', centers.endX);
+      track.setAttribute('y1', centers.centerY);
+      track.setAttribute('y2', centers.centerY);
+    }
+  }
+
   // Activate icons
   lucide.createIcons();
+
+  const isEn = lang === 'en';
+  const t = {
+    clientLabel: isEn ? "Source" : "Source",
+    clientSuspect: isEn ? "Suspicious host" : "Hôte suspect",
+    clientCompromised: isEn ? "Compromised host" : "Hôte compromis",
+    clientSecure: isEn ? "Secure client" : "Client sécurisé",
+
+    fwLabel: isEn ? "IDS Gateway" : "IDS Gateway",
+    fwBlocked: isEn ? "Threat blocked" : "Menace bloquée",
+    fwReverseBlocked: isEn ? "Reverse Shell Blocked" : "Reverse Shell Bloqué",
+    fwInspected: isEn ? "Flow inspected" : "Flux inspecté",
+
+    serverLabel: isEn ? "Server" : "Serveur",
+    analysisStatus: isEn ? "Analysis Status" : "Statut d'Analyse",
+
+    step1Text: isEn ? "Network flow detection..." : "Détection du flux réseau...",
+    step2Text: isEn ? "Metadata extraction..." : "Extraction des métadonnées...",
+    step3Text: isEn ? "Model evaluation..." : "Évaluation LightGBM...",
+    step4Text: isEn ? "Final security decision" : "Décision finale de sécurité",
+
+    waitingConn: isEn ? "Waiting for connection..." : "Attente d'une connexion...",
+
+    detectSyn: isEn ? "TCP/SYN Flow Detected" : "Flux TCP/SYN Détecté",
+    extractSyn: isEn ? "Extraction: Suspected SYN Flood (480 reqs)" : "Extraction: SYN Flood suspect (480 reqs)",
+
+    detectTeardrop: isEn ? "UDP/IP Flow Detected" : "Flux UDP/IP Détecté",
+    extractTeardrop: isEn ? "Extraction: Invalid overlapping offsets" : "Extraction: Offsets superposés invalides",
+
+    detectPing: isEn ? "ICMP/Echo Flow Detected" : "Flux ICMP/Echo Détecté",
+    extractPing: isEn ? "Extraction: Giant ICMP packet (65510B)" : "Extraction: Paquet ICMP géant (65510B)",
+
+    detectScan: isEn ? "TCP Scan Detected" : "Balayage TCP Détecté",
+    extractScan: isEn ? "Extraction: Vertical stealth scan (Nmap)" : "Extraction: Scan furtif vertical (Nmap)",
+
+    detectSqli: isEn ? "HTTP POST Request Detected" : "Requête HTTP POST Détectée",
+    extractSqli: isEn ? "Extraction: Application SQL query" : "Extraction: Requête SQL applicative",
+
+    detectBuffer: isEn ? "TCP/Telnet Connection Detected" : "Connexion TCP/Telnet Détectée",
+    extractBuffer: isEn ? "Extraction: Privilege escalation shellcode" : "Extraction: Shellcode d'élévation privilèges",
+
+    detectBrute: isEn ? "Repeated SSH Connections" : "Connexions SSH Répétées",
+    extractBrute: isEn ? "Extraction: 12 authentication failures" : "Extraction: 12 échecs d'authentification",
+
+    detectBackdoor: isEn ? "TCP/Backdoor Flow Detected" : "Flux TCP/Backdoor Détecté",
+    extractBackdoor: isEn ? "Extraction: Incoming remote shell signal" : "Extraction: Signal de shell distant entrant",
+
+    detectDefault: isEn ? "TCP/UDP flow detected" : "Flux réseau détecté",
+    extractDefault: isEn ? "Extraction: Metadata extracted" : "Extraction: Métadonnées extraites",
+
+    intrusionBlockedReverse: isEn ? "Intrusion blocked (Reverse Shell)" : "Intrusion bloquée (Reverse Shell)",
+    outboundReverseBlocked: isEn ? "Outbound Reverse Shell blocked" : "Sortie Reverse Shell bloquée",
+
+    intrusionDetected: isEn ? "Intrusion detected" : "Intrusion détectée",
+    flowBlocked: isEn ? "Flow Blocked" : "Flux Bloqué",
+
+    synBlocked: isEn ? "SYN Flood blocked" : "SYN Flood bloqué",
+    ddosContained: isEn ? "DDoS Contained" : "DDoS Contenu",
+
+    teardropBlocked: isEn ? "Teardrop Fragment" : "Fragment Teardrop",
+    crashAvoided: isEn ? "Crash avoided" : "Crash évité",
+
+    pingBlocked: isEn ? "Ping of Death" : "Ping de la mort",
+    packetRejected: isEn ? "Packet rejected" : "Paquet rejeté",
+
+    scanBlocked: isEn ? "Port scan" : "Scan de ports",
+    sourceBlacklisted: isEn ? "Source blacklisted" : "Source blacklistée",
+
+    sqliBlocked: isEn ? "SQLi blocked" : "SQLi bloqué",
+    dbSecured: isEn ? "Database secured" : "Bdd sécurisée",
+
+    bufferBlocked: isEn ? "Buffer Overflow" : "Buffer Overflow",
+    hostBanned: isEn ? "Host banned" : "Hôte banni",
+
+    bruteBlocked: isEn ? "SSH Brute Force" : "Brute Force SSH",
+    ipBlocked: isEn ? "IP blocked" : "IP bloquée",
+
+    attackDetected: isEn ? "Attack detected" : "Attaque détectée",
+    flowBlockedCat: isEn ? "Flow Blocked" : "Flux Bloqué",
+
+    flowVerified: isEn ? "Flow verified" : "Flux vérifié",
+    flowAllowed: isEn ? "Flow Allowed" : "Flux Autorisé"
+  };
 
   function setStep(stepNum, state, text = null) {
     const el = document.getElementById(`step-${stepNum}`);
     if (!el) return;
-    
+
     el.className = 'step-row active';
     if (state === 'success') {
       el.classList.add('success');
@@ -323,35 +513,44 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       el.classList.add('danger');
       el.querySelector('.step-icon-wrap').innerHTML = '<i data-lucide="x" style="width: 12px; height: 12px;"></i>';
     }
-    
+
     if (text) {
       el.querySelector('span').innerText = text;
     }
     lucide.createIcons();
   }
 
+  function triggerM3RippleBlock(x, y) {
+    // Removed red circle propagation wave as requested by user
+  }
+
   function resetSimulationState() {
     stageEl.className = 'state-idle';
-    document.getElementById('client-label').innerText = 'Source';
-    document.getElementById('fw-label').innerText = 'IDS Gateway';
+    document.getElementById('client-label').innerText = t.clientLabel;
+    document.getElementById('fw-label').innerText = t.fwLabel;
+
+    // Set server node label and title
+    document.querySelector('.node.server .node-label').innerText = t.serverLabel;
+    document.querySelector('.stepper-title').innerText = t.analysisStatus;
+
     const fwIcon = document.getElementById('fw-icon');
     fwIcon.innerHTML = '<i data-lucide="shield" style="width: 24px; height: 24px;"></i>';
     fwIcon.style.animation = 'none';
     fwIcon.style.transform = 'scale(1)';
     fwIcon.style.borderColor = '#c4c7c5';
-    
+
     const srvIcon = document.getElementById('srv-icon');
     srvIcon.innerHTML = '<i data-lucide="server" style="width: 24px; height: 24px;"></i>';
     srvIcon.style.transform = 'scale(1)';
     srvIcon.style.borderColor = '#c4c7c5';
-    
+
     document.querySelectorAll('.packet, .ripple-shield').forEach(el => el.remove());
-    
+
     const stepTexts = {
-      1: "Détection du flux réseau...",
-      2: "Extraction des métadonnées...",
-      3: "Évaluation LightGBM...",
-      4: "Décision finale de sécurité"
+      1: t.step1Text,
+      2: t.step2Text,
+      3: t.step3Text,
+      4: t.step4Text
     };
     for (let i = 1; i <= 4; i++) {
       const el = document.getElementById(`step-${i}`);
@@ -362,44 +561,45 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       }
     }
     lucide.createIcons();
+    setTimeout(updateTrackLine, 20);
   }
 
   function startSimulation() {
     resetSimulationState();
 
     if (status === 'idle') {
-      setStep(1, 'active', 'Attente d\\'une connexion...');
+      setStep(1, 'active', t.waitingConn);
       return;
     }
 
     // Step 1: Detect
     if (scenario === 'ddos_syn') {
-      setStep(1, 'success', 'Flux TCP/SYN Détecté');
-      setTimeout(() => setStep(2, 'success', 'Extraction: SYN Flood suspect (480 reqs)'), 300);
+      setStep(1, 'success', t.detectSyn);
+      setTimeout(() => setStep(2, 'success', t.extractSyn), 300);
     } else if (scenario === 'teardrop') {
-      setStep(1, 'success', 'Flux UDP/IP Détecté');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Offsets superposés invalides'), 300);
+      setStep(1, 'success', t.detectTeardrop);
+      setTimeout(() => setStep(2, 'success', t.extractTeardrop), 300);
     } else if (scenario === 'ping_death') {
-      setStep(1, 'success', 'Flux ICMP/Echo Détecté');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Paquet ICMP géant (65510B)'), 300);
+      setStep(1, 'success', t.detectPing);
+      setTimeout(() => setStep(2, 'success', t.extractPing), 300);
     } else if (scenario === 'nmap_scan') {
-      setStep(1, 'success', 'Balayage TCP Détecté');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Scan furtif vertical (Nmap)'), 300);
+      setStep(1, 'success', t.detectScan);
+      setTimeout(() => setStep(2, 'success', t.extractScan), 300);
     } else if (scenario === 'sql_injection') {
-      setStep(1, 'success', 'Requête HTTP POST Détectée');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Requête SQL applicative'), 300);
+      setStep(1, 'success', t.detectSqli);
+      setTimeout(() => setStep(2, 'success', t.extractSqli), 300);
     } else if (scenario === 'buffer_overflow') {
-      setStep(1, 'success', 'Connexion TCP/Telnet Détectée');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Shellcode d\\'élévation privilèges'), 300);
+      setStep(1, 'success', t.detectBuffer);
+      setTimeout(() => setStep(2, 'success', t.extractBuffer), 300);
     } else if (scenario === 'ssh_bruteforce') {
-      setStep(1, 'success', 'Connexions SSH Répétées');
-      setTimeout(() => setStep(2, 'success', 'Extraction: 12 échecs d\\'authentification'), 300);
+      setStep(1, 'success', t.detectBrute);
+      setTimeout(() => setStep(2, 'success', t.extractBrute), 300);
     } else if (scenario === 'backdoor') {
-      setStep(1, 'success', 'Flux TCP/Backdoor Détecté');
-      setTimeout(() => setStep(2, 'success', 'Extraction: Signal de shell distant entrant'), 300);
+      setStep(1, 'success', t.detectBackdoor);
+      setTimeout(() => setStep(2, 'success', t.extractBackdoor), 300);
     } else {
-      setStep(1, 'success', `Flux TCP/${protocol.toUpperCase()} détecté`);
-      setTimeout(() => setStep(2, 'success', `Données extraites (${srcBytes} octets)`), 300);
+      setStep(1, 'success', isEn ? `Flow TCP/${protocol.toUpperCase()} detected` : `Flux TCP/${protocol.toUpperCase()} détecté`);
+      setTimeout(() => setStep(2, 'success', isEn ? `Data extracted (${srcBytes} bytes)` : `Données extraites (${srcBytes} octets)`), 300);
     }
 
     // Step 2 activates animations at 400ms
@@ -409,58 +609,55 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
   }
 
   function animatePackets() {
-    const nodesRect = nodesContainer.getBoundingClientRect();
-    const startX = 45;
-    const fwX = nodesRect.width / 2;
-    const endX = nodesRect.width - 45;
-    const centerY = nodesRect.height * 0.5;
+    const centers = getCenters();
+    const isVert = window.innerWidth <= 600;
+
+    const startVal = isVert ? centers.startY : centers.startX;
+    const fwVal = isVert ? centers.fwY : centers.fwX;
+    const endVal = isVert ? centers.endY : centers.endX;
+    const orthoVal = isVert ? centers.centerX : centers.centerY;
 
     if (scenario === 'ddos_syn') {
-      // DDoS: dense burst of small red packets, staggered across the lane.
       let spawned = 0;
       const interval = setInterval(() => {
-        spawnSinglePacket(startX, fwX, endX, centerY, 'ddos_syn', spawned);
+        spawnSinglePacket(startVal, fwVal, endVal, orthoVal, 'ddos_syn', spawned, isVert);
         spawned++;
         if (spawned >= 90) {
           clearInterval(interval);
         }
       }, 12);
     } else if (scenario === 'teardrop') {
-      // 3 overlapping orange ovals
       for (let i = 0; i < 3; i++) {
         setTimeout(() => {
-          spawnSinglePacket(startX, fwX, endX, centerY, 'teardrop', i);
+          spawnSinglePacket(startVal, fwVal, endVal, orthoVal, 'teardrop', i, isVert);
         }, i * 60);
       }
     } else if (scenario === 'nmap_scan') {
-      // 8 rapid yellow scan points
       for (let i = 0; i < 8; i++) {
         setTimeout(() => {
-          spawnSinglePacket(startX, fwX, endX, centerY, 'nmap_scan', i);
+          spawnSinglePacket(startVal, fwVal, endVal, orthoVal, 'nmap_scan', i, isVert);
         }, i * 110);
       }
     } else if (scenario === 'ssh_bruteforce') {
-      // 8 rapid ssh brute force keys/lock packets
       for (let i = 0; i < 8; i++) {
         setTimeout(() => {
-          spawnSinglePacket(startX, fwX, endX, centerY, 'ssh_bruteforce', i);
+          spawnSinglePacket(startVal, fwVal, endVal, orthoVal, 'ssh_bruteforce', i, isVert);
         }, i * 100);
       }
     } else if (scenario === 'backdoor') {
-      spawnSinglePacket(startX, fwX, endX, centerY, 'backdoor', 0);
+      spawnSinglePacket(startVal, fwVal, endVal, orthoVal, 'backdoor', 0, isVert);
     } else {
-      // Standard normal or other single packet attacks
-      spawnSinglePacket(startX, fwX, endX, centerY, scenario, 0);
+      spawnSinglePacket(startVal, fwVal, endVal, orthoVal, scenario, 0, isVert);
     }
   }
 
-  function spawnSinglePacket(startX, fwX, endX, yPos, type, index) {
+  function spawnSinglePacket(startVal, fwVal, endVal, orthoVal, type, index, isVert) {
     const p = document.createElement('div');
     p.className = 'packet';
-    
-    // Set custom packet vertical alignment depending on type
-    let finalY = yPos;
-    
+
+    let flowPos = startVal;
+    let crossPos = orthoVal;
+
     if (type === 'ddos_syn') {
       const size = 6 + Math.floor(Math.random() * 5);
       p.style.width = size + 'px';
@@ -468,21 +665,28 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.marginTop = -(size / 2) + 'px';
       p.style.backgroundColor = '#dc2626';
       p.style.boxShadow = '0 0 8px rgba(220,38,38,0.65)';
-      finalY = yPos + (Math.random() - 0.5) * 72;
+      const maxSpread = isVert ? 30 : (window.innerWidth <= 600 ? 40 : 72);
+      crossPos = orthoVal + (Math.random() - 0.5) * maxSpread;
       p.innerHTML = '';
     } else if (type === 'teardrop') {
-      p.style.width = '30px';
-      p.style.height = '12px';
+      p.style.width = isVert ? '12px' : '30px';
+      p.style.height = isVert ? '30px' : '12px';
       p.style.borderRadius = '4px';
-      p.style.marginTop = '-6px';
+      p.style.marginTop = isVert ? '-15px' : '-6px';
       p.style.backgroundColor = '#d97706';
       p.style.boxShadow = '0 0 4px #d97706';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-20px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '18px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-20px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#fff3e0';
       badge.style.border = '1px solid #ffb74d';
       badge.style.borderRadius = '3px';
@@ -491,11 +695,11 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       badge.style.color = '#d97706';
       badge.style.fontFamily = 'monospace';
       badge.style.whiteSpace = 'nowrap';
-      
+
       if (index === 0) badge.innerText = "offset=0 (len=36)";
       else if (index === 1) badge.innerText = "offset=20 (len=28, overlap!)";
       else badge.innerText = "offset=12 (len=32, overlap!)";
-      
+
       p.appendChild(badge);
     } else if (type === 'ping_death') {
       p.style.width = '36px';
@@ -504,12 +708,18 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.backgroundColor = '#b3261e';
       p.style.boxShadow = '0 0 12px rgba(179,38,30,0.6)';
       p.innerHTML = '<span style="font-size: 0.65rem; font-weight: bold; color: white; line-height: 36px;">65K</span>';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-20px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '42px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-20px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#f9dedc';
       badge.style.border = '1px solid #f5c2c7';
       badge.style.borderRadius = '3px';
@@ -526,7 +736,8 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.marginTop = '-5px';
       p.style.backgroundColor = '#eab308';
       p.style.boxShadow = '0 0 6px #eab308';
-      finalY = yPos + (index % 3 - 1) * 12;
+      const spreadScale = isVert ? 5 : (window.innerWidth <= 600 ? 6 : 12);
+      crossPos = orthoVal + (index % 3 - 1) * spreadScale;
       p.innerHTML = '';
     } else if (type === 'sql_injection') {
       p.style.width = '16px';
@@ -535,12 +746,18 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.backgroundColor = '#7c3aed';
       p.style.boxShadow = '0 0 8px #7c3aed';
       p.innerHTML = '<i data-lucide="database" style="width: 10px; height: 10px; color: white; margin-top: 3px;"></i>';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-22px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '22px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-22px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#f3e8ff';
       badge.style.border = '1px solid #c084fc';
       badge.style.borderRadius = '3px';
@@ -558,12 +775,18 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.backgroundColor = '#7c3aed';
       p.style.boxShadow = '0 0 8px #7c3aed';
       p.innerHTML = '<i data-lucide="terminal" style="width: 10px; height: 10px; color: white; margin-top: 3px;"></i>';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-22px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '22px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-22px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#f3e8ff';
       badge.style.border = '1px solid #c084fc';
       badge.style.borderRadius = '3px';
@@ -581,12 +804,18 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.backgroundColor = '#dc2626';
       p.style.boxShadow = '0 0 6px #dc2626';
       p.innerHTML = '<i data-lucide="key" style="width: 8px; height: 8px; color: white; margin-top: 2px;"></i>';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-20px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '18px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-20px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#f9dedc';
       badge.style.border = '1px solid #f5c2c7';
       badge.style.borderRadius = '3px';
@@ -595,7 +824,7 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       badge.style.color = '#b3261e';
       badge.style.fontFamily = 'monospace';
       badge.style.whiteSpace = 'nowrap';
-      
+
       const logins = ["root / admin", "admin / admin", "user / password", "root / 123456", "mysql / mysql", "oracle / system", "root / root", "admin / 1234"];
       badge.innerText = logins[index % logins.length] + " (Echec)";
       p.appendChild(badge);
@@ -606,12 +835,18 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.style.backgroundColor = '#d017a0';
       p.style.boxShadow = '0 0 10px #d017a0';
       p.innerHTML = '<i data-lucide="terminal" style="width: 10px; height: 10px; color: white; margin-top: 3px;"></i>';
-      
+
       const badge = document.createElement('div');
       badge.style.position = 'absolute';
-      badge.style.top = '-22px';
-      badge.style.left = '50%';
-      badge.style.transform = 'translateX(-50%)';
+      if (isVert) {
+        badge.style.left = '22px';
+        badge.style.top = '50%';
+        badge.style.transform = 'translateY(-50%)';
+      } else {
+        badge.style.top = '-22px';
+        badge.style.left = '50%';
+        badge.style.transform = 'translateX(-50%)';
+      }
       badge.style.background = '#fce7f3';
       badge.style.border = '1px solid #fbcfe8';
       badge.style.borderRadius = '3px';
@@ -634,47 +869,59 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
       p.innerHTML = '<i data-lucide="activity" style="width: 8px; height: 8px; color: white; margin-top: 3px;"></i>';
     }
 
-    p.style.left = (startX - (p.offsetWidth || 14)/2) + 'px';
-    p.style.top = finalY + 'px';
+    if (isVert) {
+      p.style.left = (crossPos - (p.offsetWidth || 14)/2) + 'px';
+      p.style.top = (flowPos - (p.offsetHeight || 14)/2) + 'px';
+    } else {
+      p.style.left = (flowPos - (p.offsetWidth || 14)/2) + 'px';
+      p.style.top = crossPos + 'px';
+    }
+
     nodesContainer.appendChild(p);
     lucide.createIcons();
     p.style.opacity = 1;
 
-    let currentX = startX;
-    
-    // Customize packet speed
+    let currentVal = flowPos;
+
     let speed = 5;
-    if (type === 'ping_death') speed = 2.5; // slow dramatic giant
-    if (type === 'ddos_syn') speed = 5 + Math.random() * 5; // mixed high speeds
-    if (type === 'backdoor_reverse') speed = -4.5; // travels backwards!
+    if (type === 'ping_death') speed = 2.5;
+    if (type === 'ddos_syn') speed = 5 + Math.random() * 5;
+    if (type === 'backdoor_reverse') speed = -4.5;
 
     const fwIcon = document.getElementById('fw-icon');
     const srvIcon = document.getElementById('srv-icon');
 
     if (type === 'backdoor_reverse') {
-      // Reverse shell starts at server node
-      currentX = endX;
-      p.style.left = (currentX - (p.offsetWidth/2)) + 'px';
-      
-      const interval = setInterval(() => {
-        currentX += speed; // goes backwards (negative speed)
-        p.style.left = (currentX - (packetOffsetWidth(p))) + 'px';
+      currentVal = endVal;
+      if (isVert) {
+        p.style.top = (currentVal - (p.offsetHeight/2)) + 'px';
+      } else {
+        p.style.left = (currentVal - (p.offsetWidth/2)) + 'px';
+      }
 
-        // Reaches Gateway from the internal side
-        if (currentX <= fwX) {
+      const interval = setInterval(() => {
+        currentVal += speed;
+        if (isVert) {
+          p.style.top = (currentVal - (p.offsetHeight/2)) + 'px';
+        } else {
+          p.style.left = (currentVal - (packetOffsetWidth(p))) + 'px';
+        }
+
+        const triggered = isVert ? (currentVal <= fwVal) : (currentVal <= fwVal);
+        if (triggered) {
           clearInterval(interval);
           p.remove();
-          
-          triggerM3RippleBlock(fwX, yPos);
+
+          triggerM3RippleBlock(isVert ? crossPos : fwVal, isVert ? fwVal : crossPos);
           stageEl.className = 'state-blocked';
-          document.getElementById('client-label').innerText = 'Hôte compromis';
-          document.getElementById('fw-label').innerText = 'Reverse Shell Bloqué';
+          document.getElementById('client-label').innerText = isEn ? 'Compromised host' : 'Hôte compromis';
+          document.getElementById('fw-label').innerText = isEn ? 'Reverse Shell Blocked' : 'Reverse Shell Bloqué';
           fwIcon.innerHTML = '<i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>';
           lucide.createIcons();
-          
-          setStep(3, 'danger', 'Intrusion bloquée (Reverse Shell)');
+
+          setStep(3, 'danger', t.intrusionBlockedReverse);
           setTimeout(() => {
-            setStep(4, 'danger', 'Sortie Reverse Shell bloquée ✓');
+            setStep(4, 'danger', t.outboundReverseBlocked);
           }, 300);
         }
       }, 16);
@@ -682,86 +929,85 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     }
 
     const interval = setInterval(() => {
-      currentX += speed;
-      p.style.left = (currentX - (packetOffsetWidth(p))) + 'px';
+      currentVal += speed;
+      if (isVert) {
+        p.style.top = (currentVal - (p.offsetHeight/2)) + 'px';
+      } else {
+        p.style.left = (currentVal - (packetOffsetWidth(p))) + 'px';
+      }
 
-      // Packet reaches Firewall!
-      if (currentX >= fwX) {
+      const reachedFw = isVert ? (currentVal >= fwVal) : (currentVal >= fwVal);
+      if (reachedFw) {
         clearInterval(interval);
-        
-        // Trigger Step 3 only for the primary sequence packet
+
         if (index === 0) {
-          setStep(3, 'active', 'Évaluation LightGBM...');
+          setStep(3, 'active', t.step3Text);
         }
 
-        // Action when hitting the Gateway
         setTimeout(() => {
           if (status === 'blocked') {
             p.remove();
-            
-            // Only trigger ripples and status block styling once (for index 0)
+
             if (index === 0) {
-              triggerM3RippleBlock(fwX, yPos);
+              triggerM3RippleBlock(isVert ? crossPos : fwVal, isVert ? fwVal : crossPos);
               stageEl.className = 'state-blocked';
-              document.getElementById('client-label').innerText = 'Hôte suspect';
-              document.getElementById('fw-label').innerText = 'Menace bloquée';
+              document.getElementById('client-label').innerText = t.clientSuspect;
+              document.getElementById('fw-label').innerText = t.fwBlocked;
               fwIcon.innerHTML = '<i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>';
-              
+
               if (type === 'teardrop') {
-                // Teardrop overlapping fragment crash shake
                 fwIcon.style.animation = 'srv-shake 0.15s 3';
                 setTimeout(() => { fwIcon.style.animation = 'none'; }, 500);
               }
-              
+
               lucide.createIcons();
-              
-              let alertText = 'Intrusion détectée';
-              let decisionText = 'Flux Bloqué';
-              
+
+              let alertText = t.intrusionDetected;
+              let decisionText = t.flowBlocked;
+
               if (type === 'ddos_syn') {
-                alertText = `SYN Flood bloqué (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'DDoS Contenu ✓';
+                alertText = isEn ? `SYN Flood blocked (${(score * 100).toFixed(0)}%)` : `SYN Flood bloqué (${(score * 100).toFixed(0)}%)`;
+                decisionText = t.ddosContained;
               } else if (type === 'teardrop') {
-                alertText = `Fragment Teardrop (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'Crash évité ✓';
+                alertText = t.teardropBlocked;
+                decisionText = t.crashAvoided;
               } else if (type === 'ping_death') {
-                alertText = `Ping de la mort (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'Paquet rejeté ✓';
+                alertText = t.pingBlocked;
+                decisionText = t.packetRejected;
               } else if (type === 'nmap_scan') {
-                alertText = `Scan de ports (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'Source blacklistée ✓';
+                alertText = t.scanBlocked;
+                decisionText = t.sourceBlacklisted;
               } else if (type === 'sql_injection') {
-                alertText = `SQLi bloqué (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'Bdd sécurisée ✓';
+                alertText = t.sqliBlocked;
+                decisionText = t.dbSecured;
               } else if (type === 'buffer_overflow') {
-                alertText = `Buffer Overflow (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'Hôte banni ✓';
+                alertText = t.bufferBlocked;
+                decisionText = t.hostBanned;
               } else if (type === 'ssh_bruteforce') {
-                alertText = `Brute Force SSH (${(score * 100).toFixed(0)}%)`;
-                decisionText = 'IP bloquée ✓';
+                alertText = t.bruteBlocked;
+                decisionText = t.ipBlocked;
               } else {
-                alertText = `Attaque détectée (${(score * 100).toFixed(0)}%)`;
-                decisionText = `Flux Bloqué (${category.toUpperCase()})`;
+                alertText = t.attackDetected;
+                decisionText = t.flowBlockedCat;
               }
-              
+
               setStep(3, 'danger', alertText);
               setTimeout(() => {
                 setStep(4, 'danger', decisionText);
               }, 300);
             }
           } else {
-            // Sain traffic flow
             if (index === 0) {
               stageEl.className = 'state-normal';
-              document.getElementById('client-label').innerText = 'Client sécurisé';
-              document.getElementById('fw-label').innerText = 'Flux inspecté';
+              document.getElementById('client-label').innerText = t.clientSecure;
+              document.getElementById('fw-label').innerText = t.fwInspected;
               fwIcon.innerHTML = '<i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>';
               lucide.createIcons();
-              
-              setStep(3, 'success', `Flux vérifié (Sain ${(score * 100).toFixed(0)}%)`);
+
+              setStep(3, 'success', isEn ? `Flow verified (${(score * 100).toFixed(0)}%)` : `Flux vérifié (Sain ${(score * 100).toFixed(0)}%)`);
             }
-            
-            animateToDest(p, fwX, endX, yPos, index, type);
+
+            animateToDest(p, fwVal, endVal, crossPos, index, type, isVert);
           }
         }, 400);
       }
@@ -772,40 +1018,40 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
     return (p.offsetWidth || 14) / 2;
   }
 
-  function animateToDest(packet, startX, endX, yPos, index, type) {
-    let currentX = startX;
+  function animateToDest(packet, startVal, endVal, crossPos, index, type, isVert) {
+    let currentVal = startVal;
     const speed = 5.5;
     const srvIcon = document.getElementById('srv-icon');
-    
-    // Smoothly turn green as it passes through verified shield
+
     if (type !== 'backdoor') {
       packet.style.backgroundColor = '#146c2e';
       packet.style.boxShadow = '0 0 6px #146c2e';
-      if (packet.style.width === '14px' || packet.style.width === '') {
+      if (packet.style.width === '14px' || packet.style.width === '' || packet.style.height === '14px') {
         packet.innerHTML = '<i data-lucide="check" style="width: 8px; height: 8px; color: white; margin-top: 3px;"></i>';
         lucide.createIcons();
       } else {
         packet.innerHTML = '';
       }
     }
-    
-    const interval = setInterval(() => {
-      currentX += speed;
-      packet.style.left = (currentX - (packetOffsetWidth(packet))) + 'px';
 
-      // Reached server
-      if (currentX >= endX) {
+    const interval = setInterval(() => {
+      currentVal += speed;
+      if (isVert) {
+        packet.style.top = (currentVal - (packet.offsetHeight/2)) + 'px';
+      } else {
+        packet.style.left = (currentVal - (packetOffsetWidth(packet))) + 'px';
+      }
+
+      if (currentVal >= endVal) {
         clearInterval(interval);
         packet.remove();
-        
-        // Action when arriving at server
+
         if (index === 0) {
-          // Soft M3 server scale animation once
           srvIcon.style.transform = 'scale(1.15)';
           srvIcon.style.borderColor = '#146c2e';
-            
-            setStep(4, 'success', 'Flux Autorisé ✓');
-            
+
+          setStep(4, 'success', t.flowAllowed);
+
           setTimeout(() => {
             srvIcon.style.transform = 'scale(1)';
             srvIcon.style.borderColor = '#a3cfbb';
@@ -816,8 +1062,10 @@ HTML_SIMULATOR_TEMPLATE = """<!DOCTYPE html>
   }
 
   window.addEventListener('load', () => {
+    updateTrackLine();
     setTimeout(startSimulation, 120);
   });
+  window.addEventListener('resize', updateTrackLine);
 </script>
 </body>
 </html>

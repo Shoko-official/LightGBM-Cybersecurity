@@ -54,13 +54,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     release_parser = subparsers.add_parser("check-release")
     release_parser.add_argument("--summary", default="reports/release/summary.json")
+    release_parser.add_argument("--workspace-root", default=".")
+    release_parser.add_argument("--min-external-support", type=int, default=1000)
+    release_parser.add_argument(
+        "--metrics-only",
+        action="store_true",
+        help="Only validate metric thresholds. Commercial release checks validate evidence by default.",
+    )
 
     return parser
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.command == "train":
         from ids_project.training import train
@@ -87,7 +94,12 @@ def main() -> None:
         from ids_project.quality import evaluate_release_summary
 
         summary = json.loads(Path(args.summary).read_text(encoding="utf-8"))
-        result = evaluate_release_summary(summary)
+        result = evaluate_release_summary(
+            summary,
+            require_evidence=not args.metrics_only,
+            workspace_root=Path(args.workspace_root),
+            min_external_support=args.min_external_support,
+        )
         if not result.passed:
             raise SystemExit("\n".join(result.failures))
         print(json.dumps({"release_ready": True}, indent=2))

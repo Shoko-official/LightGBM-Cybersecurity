@@ -177,22 +177,20 @@ def _macro_roc_auc(
     probabilities: np.ndarray,
     class_indices: np.ndarray,
 ) -> float:
-    if len(class_indices) < 2:
+    known_labels, known_probabilities = _known_class_probabilities(label_values, probabilities, class_indices)
+    if len(class_indices) < 2 or len(np.unique(known_labels)) < 2:
         return 0.0
-    if len(np.unique(label_values)) < 2:
-        return 0.0
-    try:
-        return float(
-            roc_auc_score(
-                label_values,
-                probabilities,
-                multi_class="ovr",
-                average="macro",
-                labels=class_indices.tolist(),
-            )
-        )
-    except ValueError:
-        return 0.0
+    y_true = _binarized_labels(known_labels, class_indices)
+    scores: list[float] = []
+    for index in range(y_true.shape[1]):
+        class_truth = y_true[:, index]
+        if len(np.unique(class_truth)) < 2:
+            continue
+        try:
+            scores.append(float(roc_auc_score(class_truth, known_probabilities[:, index])))
+        except ValueError:
+            continue
+    return float(np.mean(scores)) if scores else 0.0
 
 
 def _macro_average_precision(
@@ -200,15 +198,36 @@ def _macro_average_precision(
     probabilities: np.ndarray,
     class_indices: np.ndarray,
 ) -> float:
-    if len(class_indices) < 2:
+    known_labels, known_probabilities = _known_class_probabilities(label_values, probabilities, class_indices)
+    if len(class_indices) < 2 or len(np.unique(known_labels)) < 2:
         return 0.0
+    y_true = _binarized_labels(known_labels, class_indices)
+    scores: list[float] = []
+    for index in range(y_true.shape[1]):
+        class_truth = y_true[:, index]
+        if not np.any(class_truth):
+            continue
+        try:
+            scores.append(float(average_precision_score(class_truth, known_probabilities[:, index])))
+        except ValueError:
+            continue
+    return float(np.mean(scores)) if scores else 0.0
+
+
+def _known_class_probabilities(
+    label_values: np.ndarray,
+    probabilities: np.ndarray,
+    class_indices: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    mask = np.isin(label_values, class_indices)
+    return label_values[mask], probabilities[mask]
+
+
+def _binarized_labels(label_values: np.ndarray, class_indices: np.ndarray) -> np.ndarray:
     y_true = label_binarize(label_values, classes=class_indices.tolist())
-    if y_true.shape[1] != probabilities.shape[1]:
-        return 0.0
-    try:
-        return float(average_precision_score(y_true, probabilities, average="macro"))
-    except ValueError:
-        return 0.0
+    if len(class_indices) == 2 and y_true.shape[1] == 1:
+        return np.column_stack([1 - y_true[:, 0], y_true[:, 0]])
+    return y_true
 
 
 def _safe_binary_roc_auc(labels: np.ndarray, scores: np.ndarray) -> float:

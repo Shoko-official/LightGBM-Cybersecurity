@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 
 from ids_project.runtime import load_runtime, predict_batch, predict_one
@@ -16,6 +18,16 @@ def test_runtime_predict_one(trained_bundle, sample_dataset_frame):
     assert result.label in {"normal", "attack"}
     assert result.category in {"normal", "dos", "probe", "r2l", "u2r"}
     assert 0.0 <= result.score <= 1.0
+
+
+def test_runtime_predict_one_preserves_feature_names(trained_bundle, sample_dataset_frame):
+    payload = sample_dataset_frame.drop(columns=["label", "difficulty"]).iloc[0].to_dict()
+
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        predict_one(trained_bundle, payload)
+
+    assert not any("feature names" in str(warning.message) for warning in captured)
 
 
 def test_runtime_predict_batch_requires_payloads(trained_bundle):
