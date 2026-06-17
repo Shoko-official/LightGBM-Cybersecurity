@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ids_project.config import DEFAULT_CLASS_WEIGHTS, PRODUCTION_PROFILE_NAME, U2R_SPECIALIST_PROFILE_NAME
+from ids_project.config import PRODUCTION_PROFILE_NAME, U2R_SPECIALIST_PROFILE_NAME
 from ids_project.cli import build_parser, build_training_config
 
 
@@ -83,7 +83,7 @@ def test_build_training_config_require_gpu_disables_fallback():
     assert config.allow_gpu_fallback is False
 
 
-def test_build_training_config_uses_default_class_weights():
+def test_build_training_config_uses_production_profile_defaults():
     parser = build_parser()
     args = parser.parse_args(
         [
@@ -96,7 +96,9 @@ def test_build_training_config_uses_default_class_weights():
     config = build_training_config(args)
 
     assert config.profile_name == PRODUCTION_PROFILE_NAME
-    assert config.custom_class_weights == DEFAULT_CLASS_WEIGHTS
+    assert config.custom_class_weights is None
+    assert config.use_smote is False
+    assert config.threshold == 0.30
 
 
 def test_build_training_config_supports_specialist_profile():

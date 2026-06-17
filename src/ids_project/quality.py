@@ -7,11 +7,11 @@ from typing import Any
 
 
 DEFAULT_RELEASE_THRESHOLDS = {
-    "accuracy": 0.70,
-    "macro_f1": 0.55,
-    "macro_recall": 0.50,
-    "r2l_f1": 0.30,
-    "u2r_f1": 0.10,
+    "accuracy": 0.80,
+    "macro_f1": 0.60,
+    "macro_recall": 0.58,
+    "r2l_f1": 0.35,
+    "u2r_f1": 0.20,
 }
 
 

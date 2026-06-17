@@ -13,8 +13,12 @@ from ids_project.config import (
 def test_build_profile_config_returns_production_defaults():
     profile = build_profile_config(PRODUCTION_PROFILE_NAME)
 
-    assert profile["n_estimators"] == 200
-    assert profile["custom_class_weights"]["u2r"] == 2.5
+    assert profile["n_estimators"] == 320
+    assert profile["num_leaves"] == 7
+    assert profile["max_depth"] == 5
+    assert profile["threshold"] == 0.30
+    assert profile["use_smote"] is False
+    assert profile["custom_class_weights"] is None
 
 
 def test_build_profile_config_returns_specialist_defaults():

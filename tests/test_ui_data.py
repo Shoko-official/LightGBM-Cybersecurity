@@ -44,8 +44,8 @@ def test_load_dashboard_sources_accepts_missing_artifacts(tmp_path):
 def test_release_status_uses_quality_gates():
     summary = {
         "default_prod": {
-            "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
-            "rare_class_f1": {"r2l": 0.35, "u2r": 0.12},
+            "metrics": {"accuracy": 0.81, "recall": 0.59, "f1_score": 0.62},
+            "rare_class_f1": {"r2l": 0.40, "u2r": 0.22},
         }
     }
 

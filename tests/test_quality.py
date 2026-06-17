@@ -8,12 +8,12 @@ from ids_project.quality import evaluate_release_summary
 def test_release_gates_accept_current_summary_shape():
     summary = {
         "default_prod": {
-            "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
-            "rare_class_f1": {"r2l": 0.35, "u2r": 0.12},
+            "metrics": {"accuracy": 0.81, "recall": 0.59, "f1_score": 0.62},
+            "rare_class_f1": {"r2l": 0.40, "u2r": 0.22},
         },
         "u2r_specialist": {
-            "metrics": {"accuracy": 0.77, "recall": 0.54, "f1_score": 0.57},
-            "rare_class_f1": {"r2l": 0.32, "u2r": 0.17},
+            "metrics": {"accuracy": 0.81, "recall": 0.59, "f1_score": 0.62},
+            "rare_class_f1": {"r2l": 0.40, "u2r": 0.22},
         },
     }
 
@@ -26,7 +26,7 @@ def test_release_gates_accept_current_summary_shape():
 def test_release_gates_reject_weak_rare_class_scores():
     summary = {
         "default_prod": {
-            "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
+            "metrics": {"accuracy": 0.81, "recall": 0.59, "f1_score": 0.62},
             "rare_class_f1": {"r2l": 0.35, "u2r": 0.01},
         }
     }
@@ -41,8 +41,8 @@ def test_commercial_release_gate_rejects_missing_evidence(tmp_path):
     summary = {
         "release_ready": True,
         "default_prod": {
-            "metrics": {"accuracy": 0.78, "recall": 0.56, "f1_score": 0.58},
-            "rare_class_f1": {"r2l": 0.35, "u2r": 0.12},
+            "metrics": {"accuracy": 0.81, "recall": 0.59, "f1_score": 0.62},
+            "rare_class_f1": {"r2l": 0.40, "u2r": 0.22},
         },
     }
 
@@ -95,10 +95,11 @@ def test_commercial_release_gate_accepts_complete_evidence(tmp_path):
         json.dumps(
             {
                 "metrics": {
-                    "accuracy": 0.78,
+                    "accuracy": 0.81,
+                    "balanced_accuracy": 0.59,
                     "precision": 0.8,
-                    "recall": 0.56,
-                    "f1_score": 0.58,
+                    "recall": 0.59,
+                    "f1_score": 0.62,
                     "roc_auc": 0.9,
                     "attack_precision": 0.85,
                     "attack_recall": 0.82,
@@ -117,13 +118,13 @@ def test_commercial_release_gate_accepts_complete_evidence(tmp_path):
             "artifact_dir": "artifacts/final",
             "report_path": "reports/external_validation/default-prod.json",
             "metrics": {
-                "accuracy": 0.78,
+                "accuracy": 0.81,
                 "precision": 0.8,
-                "recall": 0.56,
-                "f1_score": 0.58,
+                "recall": 0.59,
+                "f1_score": 0.62,
                 "roc_auc": 0.9,
             },
-            "rare_class_f1": {"r2l": 0.35, "u2r": 0.12},
+            "rare_class_f1": {"r2l": 0.40, "u2r": 0.22},
         },
     }
 
