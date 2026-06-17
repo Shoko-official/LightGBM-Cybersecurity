@@ -65,6 +65,31 @@ def _stratified_split_indices(labels: pd.Series, test_size: float, random_state:
     return np.array(sorted(train_idx), dtype=int), np.array(sorted(test_idx), dtype=int)
 
 
+_RARE_LABEL_FALLBACK = "r2l"
+
+
+def _merge_rare_labels(frame: pd.DataFrame, target_column: str) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Remap attack subtypes with fewer than 2 occurrences to r2l (their NSL-KDD family).
+
+    Returns the updated frame and a mapping of remapped labels for traceability.
+    """
+    counts = frame[target_column].value_counts()
+    rare = counts[counts < 2].index.tolist()
+    if not rare:
+        return frame, {}
+    mapping = {label: _RARE_LABEL_FALLBACK for label in rare}
+    import warnings
+    warnings.warn(
+        f"Rare attack labels merged into '{_RARE_LABEL_FALLBACK}' to allow stratified splitting: "
+        + ", ".join(sorted(rare)),
+        UserWarning,
+        stacklevel=4,
+    )
+    frame = frame.copy()
+    frame[target_column] = frame[target_column].replace(mapping)
+    return frame, mapping
+
+
 def _normalize_dataset(frame: pd.DataFrame, target_column: str, difficulty_column: str, dataset_name: str) -> pd.DataFrame:
     normalized = frame.copy()
     normalized.columns = [column.strip().lower() for column in normalized.columns]
@@ -90,6 +115,9 @@ def _normalize_dataset(frame: pd.DataFrame, target_column: str, difficulty_colum
     numeric_columns = [column for column in NSL_KDD_COLUMNS if column not in CATEGORICAL_COLUMNS]
     normalized[numeric_columns] = normalized[numeric_columns].apply(pd.to_numeric, errors="raise")
     normalized[target_column] = normalized[target_column].astype(str).str.strip()
+
+    # Merge singleton attack subtypes so stratified splitting never fails.
+    normalized, _ = _merge_rare_labels(normalized, target_column)
 
     if normalized[target_column].nunique() < 2:
         raise ValueError("Dataset must contain at least two label classes.")
